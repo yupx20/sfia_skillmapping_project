@@ -24,4 +24,4 @@ def clean_job_data(filepath):
 if __name__ == '__main__':
     df = clean_job_data('data/CSJobs.xlsx')
     df.to_csv('output/cleaned_CSJobs.csv', index=False)
-    print("✅ Data CS cleaned dan disimpan ke cleaned_CSJobs.csv")
+    print("Data CS cleaned dan disimpan ke cleaned_CSJobs.csv")

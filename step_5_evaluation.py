@@ -40,7 +40,7 @@ def evaluate_single_mapping(mapping_file: str, gt_set: set, model_name: str, clu
             'F1_score': f1_score
         }
     except Exception as e:
-        print(f"❌ Gagal evaluasi {model_name}: {e}")
+        print(f"Gagal evaluasi {model_name}: {e}")
         return {
             'Model': model_name,
             'Cluster': cluster_name,
@@ -51,7 +51,7 @@ def evaluate_single_mapping(mapping_file: str, gt_set: set, model_name: str, clu
 if __name__ == '__main__':
     start = time.time()
     cluster_name = "CS"
-    gt_file = "GT_Pakar1.xlsx"
+    gt_file = "data/GT_Pakar1.xlsx"
     gt_sheet = "Ilmu Komputer"
     gt_set = create_ground_truth(gt_file, gt_sheet)
 
@@ -71,20 +71,20 @@ if __name__ == '__main__':
         "skills_ner_bert_yake"
     ]
 
-    print("\n🚀 Evaluasi COSINE Models")
+    print("\nEvaluasi COSINE Models")
     all_results = []
     for model in COSINE_MODELS:
-        path = f"mapping_cosine_{model}_{cluster_name}.csv"
+        path = f"output/mapping_cosine_{model}_{cluster_name}.csv"
         result = evaluate_single_mapping(path, gt_set, model, cluster_name)
         all_results.append(result)
 
-    print("\n🚀 Evaluasi JACCARD Models")
+    print("\nEvaluasi JACCARD Models")
     for model in JACCARD_MODELS:
-        path = f"mapping_jaccard_{model}_{cluster_name}.csv"
+        path = f"output/mapping_jaccard_{model}_{cluster_name}.csv"
         result = evaluate_single_mapping(path, gt_set, model, cluster_name)
         all_results.append(result)
 
     # Simpan seluruh hasil evaluasi
-    pd.DataFrame(all_results).to_csv(f"evaluation_all_models_{cluster_name}.csv", index=False)
-    print(f"\n📊 Semua hasil evaluasi disimpan ke evaluation_all_models_{cluster_name}.csv")
-    print(f"⏱️ Total waktu evaluasi: {time.time() - start:.2f} detik")
+    pd.DataFrame(all_results).to_csv(f"output/evaluation_all_models_{cluster_name}.csv", index=False)
+    print(f"\nSemua hasil evaluasi disimpan ke evaluation_all_models_{cluster_name}.csv")
+    print(f"Total waktu evaluasi: {time.time() - start:.2f} detik")

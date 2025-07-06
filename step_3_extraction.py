@@ -37,7 +37,7 @@ def extract_all_skills(job_file: str, sfia_file: str, cluster_name: str):
     print(f"Hasil ekstraksi disimpan ke skills_extracted_jobs_{cluster_name}.csv dan skills_extracted_sfia_{cluster_name}.csv")
 
 if __name__ == '__main__':
-    extract_all_skills("processed_jobs_CS.csv", "processed_sfia_CS.csv", "CS")
+    extract_all_skills("output/processed_jobs_CS.csv", "output/processed_sfia_CS.csv", "CS")
 
     end_time = time.time()
-    print(f"✅ Waktu yang dibutuhkan: {end_time - start_time:.2f} detik")
+    print(f"Waktu yang dibutuhkan: {end_time - start_time:.2f} detik")

@@ -76,7 +76,7 @@ def map_skills_cosine(jobs_df, sfia_df, job_col, sfia_col, cluster_name, model_n
     pd.DataFrame({'matched_skills': unique_predicted}).to_csv(
         f"output/mapping_cosine_{model_name}_{cluster_name}.csv", index=False
     )
-    print(f"✅ Cosine mapping '{model_name}' disimpan ke mapping_cosine_{model_name}_{cluster_name}.csv")
+    print(f"Cosine mapping '{model_name}' disimpan ke mapping_cosine_{model_name}_{cluster_name}.csv")
 
 # --- Mapping JACCARD ---
 def jaccard_similarity(set1, set2):
@@ -106,9 +106,9 @@ def map_skills_jaccard_per_job(jobs_df, sfia_df, job_col, sfia_col, cluster_name
     if matched_sfias:
         result_df = pd.DataFrame({'matched_skills': sorted(matched_sfias)})
         result_df.to_csv(f"output/mapping_jaccard_{model_name}_{cluster_name}.csv", index=False)
-        print(f"✅ Jaccard mapping '{model_name}' disimpan ke mapping_jaccard_{model_name}_{cluster_name}.csv")
+        print(f"Jaccard mapping '{model_name}' disimpan ke mapping_jaccard_{model_name}_{cluster_name}.csv")
     else:
-        print(f"⚠️  Tidak ada hasil mapping untuk model {model_name}")
+        print(f"Tidak ada hasil mapping untuk model {model_name}")
 
 # --- MAIN ---
 if __name__ == '__main__':
@@ -119,7 +119,7 @@ if __name__ == '__main__':
     sfia_df = pd.read_csv(f"output/skills_extracted_sfia_{cluster_name}.csv")
 
     # === GABUNGKAN KOLOM MODEL ===
-    print("🔗 Menggabungkan kolom model...")
+    print("Menggabungkan kolom model...")
     combine_columns(jobs_df, "skills_skillner_tfidf", ["skills_skillner"])
     combine_columns(jobs_df, "skills_skillner_keybert_tfidf", ["skills_skillner", "keybert_skills"])
     combine_columns(jobs_df, "skills_ner_bert_tfidf", ["skills_ner_bert"])
@@ -161,18 +161,18 @@ if __name__ == '__main__':
         "skills_ner_bert_yake"
     ]
 
-    print("\n🚀 Mulai mapping COSINE...")
+    print("\nMulai mapping COSINE...")
     for col in COSINE_MODELS:
         try:
             map_skills_cosine(jobs_df, sfia_df, col, col, cluster_name, col)
         except Exception as e:
-            print(f"❌ Error model cosine '{col}': {e}")
+            print(f"Error model cosine '{col}': {e}")
 
-    print("\n🚀 Mulai mapping JACCARD...")
+    print("\nMulai mapping JACCARD...")
     for col in JACCARD_MODELS:
         try:
             map_skills_jaccard_per_job(jobs_df, sfia_df, col, col, cluster_name, col)
         except Exception as e:
-            print(f"❌ Error model jaccard '{col}': {e}")
+            print(f"Error model jaccard '{col}': {e}")
 
-    print(f"\n⏱️ Total waktu proses: {time.time() - start_time:.2f} detik")
+    print(f"\nTotal waktu proses: {time.time() - start_time:.2f} detik")
