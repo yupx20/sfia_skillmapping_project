@@ -58,8 +58,8 @@ def parse_yake_list(yake_entry):
         return yake_entry
     return []
 
-# --- Mapping COSINE ---
-def map_skills_cosine(jobs_df, sfia_df, job_col, sfia_col, cluster_name, model_name, threshold=0.1):
+# Mapping COSINE
+def map_skills_cosine(jobs_df, sfia_df, job_col, sfia_col, cluster_name, model_name, threshold=0.2):
     combined_job_text = join_all_skills_column(jobs_df, job_col)
     sfia_text = join_skills(sfia_df[sfia_col])
     vectorizer = TfidfVectorizer().fit([combined_job_text] + sfia_text)
@@ -74,11 +74,11 @@ def map_skills_cosine(jobs_df, sfia_df, job_col, sfia_col, cluster_name, model_n
     ]
     unique_predicted = sorted(set(predicted_skills))
     pd.DataFrame({'matched_skills': unique_predicted}).to_csv(
-        f"output/mapping_cosine_{model_name}_{cluster_name}.csv", index=False
+        f"output/{cluster_name}/mapping_cosine_{model_name}_{cluster_name}.csv", index=False
     )
     print(f"Cosine mapping '{model_name}' disimpan ke mapping_cosine_{model_name}_{cluster_name}.csv")
 
-# --- Mapping JACCARD ---
+# Mapping JACCARD
 def jaccard_similarity(set1, set2):
     if not set1 or not set2: return 0.0
     return len(set1.intersection(set2)) / len(set1.union(set2))
@@ -105,7 +105,7 @@ def map_skills_jaccard_per_job(jobs_df, sfia_df, job_col, sfia_col, cluster_name
 
     if matched_sfias:
         result_df = pd.DataFrame({'matched_skills': sorted(matched_sfias)})
-        result_df.to_csv(f"output/mapping_jaccard_{model_name}_{cluster_name}.csv", index=False)
+        result_df.to_csv(f"output/{cluster_name}/mapping_jaccard_{model_name}_{cluster_name}.csv", index=False)
         print(f"Jaccard mapping '{model_name}' disimpan ke mapping_jaccard_{model_name}_{cluster_name}.csv")
     else:
         print(f"Tidak ada hasil mapping untuk model {model_name}")
@@ -113,10 +113,19 @@ def map_skills_jaccard_per_job(jobs_df, sfia_df, job_col, sfia_col, cluster_name
 # --- MAIN ---
 if __name__ == '__main__':
     start_time = time.time()
-    cluster_name = "CS"
+    cluster_name = "IS"
 
-    jobs_df = pd.read_csv(f"output/skills_extracted_jobs_{cluster_name}.csv")
-    sfia_df = pd.read_csv(f"output/skills_extracted_sfia_{cluster_name}.csv")
+    jobs_df = pd.read_csv(f"output/{cluster_name}/skills_extracted_jobs_{cluster_name}.csv")
+    sfia_df = pd.read_csv(f"output/{cluster_name}/skills_extracted_sfia_{cluster_name}.csv")
+
+    # jobs_df["rake_skills"] = jobs_df["rake_skills"].apply(preprocess_rake_string)
+    # sfia_df["rake_skills"] = sfia_df["rake_skills"].apply(preprocess_rake_string)
+
+    jobs_df["yake_skills"] = jobs_df["yake_skills"].apply(lambda x: parse_yake_list(x))
+    sfia_df["yake_skills"] = sfia_df["yake_skills"].apply(lambda x: parse_yake_list(x))
+
+    # print(jobs_df["yake_skills"])
+    # print(sfia_df["yake_skills"])
 
     # === GABUNGKAN KOLOM MODEL ===
     print("Menggabungkan kolom model...")

@@ -50,9 +50,9 @@ def evaluate_single_mapping(mapping_file: str, gt_set: set, model_name: str, clu
 
 if __name__ == '__main__':
     start = time.time()
-    cluster_name = "CS"
+    cluster_name = "IS"
     gt_file = "data/GT_Pakar1.xlsx"
-    gt_sheet = "Ilmu Komputer"
+    gt_sheet = "Sistem Informasi"
     gt_set = create_ground_truth(gt_file, gt_sheet)
 
     COSINE_MODELS = [
@@ -74,17 +74,17 @@ if __name__ == '__main__':
     print("\nEvaluasi COSINE Models")
     all_results = []
     for model in COSINE_MODELS:
-        path = f"output/mapping_cosine_{model}_{cluster_name}.csv"
+        path = f"output/{cluster_name}/mapping_cosine_{model}_{cluster_name}.csv"
         result = evaluate_single_mapping(path, gt_set, model, cluster_name)
         all_results.append(result)
 
     print("\nEvaluasi JACCARD Models")
     for model in JACCARD_MODELS:
-        path = f"output/mapping_jaccard_{model}_{cluster_name}.csv"
+        path = f"output/{cluster_name}/mapping_jaccard_{model}_{cluster_name}.csv"
         result = evaluate_single_mapping(path, gt_set, model, cluster_name)
         all_results.append(result)
 
     # Simpan seluruh hasil evaluasi
-    pd.DataFrame(all_results).to_csv(f"output/evaluation_all_models_{cluster_name}.csv", index=False)
+    pd.DataFrame(all_results).to_csv(f"output/{cluster_name}/evaluation_all_models_{cluster_name}.csv", index=False)
     print(f"\nSemua hasil evaluasi disimpan ke evaluation_all_models_{cluster_name}.csv")
     print(f"Total waktu evaluasi: {time.time() - start:.2f} detik")

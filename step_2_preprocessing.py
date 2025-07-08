@@ -24,11 +24,12 @@ def preprocess_jobs_and_sfia(job_file: str, sfia_file: str, cluster_name: str):
     sfia_df = transform_sfia_to_long_format(sfia_file)
     sfia_df['Level_Description_cleaned'] = sfia_df['Level_Description'].apply(preprocess_text)
 
-    # Save output
-    jobs_df.to_csv(f"processed_jobs_{cluster_name}.csv", index=False)
-    sfia_df.to_csv(f"processed_sfia_{cluster_name}.csv", index=False)
-    print(f"Data lowongan disimpan ke processed_jobs_{cluster_name}.csv")
-    print(f"Data SFIA disimpan ke processed_sfia_{cluster_name}.csv")
+    return jobs_df, sfia_df
 
 if __name__ == '__main__':
-    preprocess_jobs_and_sfia("output/cleaned_CSJobs.csv", "data/sfia9_en2025.xlsx", "CS")
+    cluster_name = "IS"
+    jobs_df, sfia_df = preprocess_jobs_and_sfia(f"output/{cluster_name}/cleaned_{cluster_name}Jobs.csv", "data/sfia9_en2025.xlsx", {cluster_name})
+    jobs_df.to_csv(f"output/{cluster_name}/processed_jobs_{cluster_name}.csv", index=False)
+    sfia_df.to_csv(f"output/{cluster_name}/processed_sfia_{cluster_name}.csv", index=False)
+    print(f"Data lowongan disimpan ke processed_jobs_{cluster_name}.csv")
+    print(f"Data SFIA disimpan ke processed_sfia_{cluster_name}.csv")
