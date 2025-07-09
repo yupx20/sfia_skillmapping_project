@@ -1,6 +1,8 @@
 import pandas as pd
 import time
+import os
 
+# --- Ground Truth ---
 def create_ground_truth(gt_path: str, sheet_name: str) -> set:
     gt_df = pd.read_excel(gt_path, sheet_name=sheet_name)
     gt_df.columns = gt_df.columns.str.strip().str.replace('\n', '', regex=True)
@@ -15,53 +17,56 @@ def create_ground_truth(gt_path: str, sheet_name: str) -> set:
                 ground_truth_set.add(f"{skill_name} {level_number}")
     return ground_truth_set
 
-def evaluate_single_mapping(mapping_file: str, gt_set: set, model_name: str, cluster_name: str):
-    try:
-        mapping_df = pd.read_csv(mapping_file)
-        predicted_set = set(mapping_df['matched_skills'].dropna())
+# --- Evaluasi satu model (mengembalikan dataframe) ---
+def evaluate_single_mapping(mapping_file: str, gt_set: set,
+                            model_name: str, cluster_name: str, expanded: bool = False) -> pd.DataFrame:
+    col_name = 'expanded_matched_skills' if expanded else 'matched_skills'
+    if not os.path.exists(mapping_file):
+        print(f"File tidak ditemukan: {mapping_file}")
+        return None
 
-        tp = len(predicted_set.intersection(gt_set))
-        fp = len(predicted_set - gt_set)
-        fn = len(gt_set - predicted_set)
-        tn = 0  # Not computable
+    df = pd.read_csv(mapping_file)
+    if col_name not in df.columns:
+        print(f"Kolom '{col_name}' tidak ditemukan di {mapping_file}")
+        return None
 
-        precision = tp / (tp + fp) if (tp + fp) else 0.0
-        recall = tp / (tp + fn) if (tp + fn) else 0.0
-        f1_score = 2 * precision * recall / (precision + recall) if (precision + recall) else 0.0
+    predicted_set = set(df[col_name].dropna())
 
-        return {
-            'Model': model_name,
-            'Cluster': cluster_name,
-            'TP': tp,
-            'FP': fp,
-            'FN': fn,
-            'Precision': precision,
-            'Recall': recall,
-            'F1_score': f1_score
-        }
-    except Exception as e:
-        print(f"Gagal evaluasi {model_name}: {e}")
-        return {
-            'Model': model_name,
-            'Cluster': cluster_name,
-            'TP': 0, 'FP': 0, 'FN': 0,
-            'Precision': 0.0, 'Recall': 0.0, 'F1_score': 0.0
-        }
+    # Hitung metrik
+    tp = len(predicted_set & gt_set)
+    fp = len(predicted_set - gt_set)
+    fn = len(gt_set - predicted_set)
 
+    precision = tp / (tp + fp) if (tp + fp) else 0.0
+    recall    = tp / (tp + fn) if (tp + fn) else 0.0
+    f1_score  = 2 * precision * recall / (precision + recall) if (precision + recall) else 0.0
+
+    return pd.DataFrame([{
+        'Model': model_name,
+        'Cluster': cluster_name,
+        'Expanded': expanded,
+        'TP': tp,
+        'FP': fp,
+        'FN': fn,
+        'Precision': precision,
+        'Recall': recall,
+        'F1_score': f1_score
+    }])
+
+# --- MAIN ---
 if __name__ == '__main__':
     start = time.time()
     cluster_name = "IS"
     gt_file = "data/GT_Pakar1.xlsx"
-    gt_sheet = "Sistem Informasi"
-    gt_set = create_ground_truth(gt_file, gt_sheet)
+    gt_sheet = "Ilmu Komputer" if cluster_name == "CS" else "Sistem Informasi"
 
     COSINE_MODELS = [
-        "skills_skillner_tfidf",
-        "skills_skillner_keybert_tfidf",
-        "skills_ner_bert_tfidf",
-        "skills_ner_bert_keybert_tfidf",
-        "skills_skillner_qe_tfidf",
-        "skills_skillner_qe_keybert_tfidf"
+        "skills_skillner",
+        "skills_skillner_keybert",
+        "skills_ner_bert",
+        "skills_ner_bert_keybert",
+        "skills_skillner_qe",
+        "skills_skillner_qe_keybert"
     ]
 
     JACCARD_MODELS = [
@@ -71,20 +76,34 @@ if __name__ == '__main__':
         "skills_ner_bert_yake"
     ]
 
-    print("\nEvaluasi COSINE Models")
+    # Inisialisasi ground truth
+    gt_set = create_ground_truth(gt_file, gt_sheet)
+
+    # Simpan semua hasil evaluasi
     all_results = []
-    for model in COSINE_MODELS:
-        path = f"output/{cluster_name}/mapping_cosine_{model}_{cluster_name}.csv"
-        result = evaluate_single_mapping(path, gt_set, model, cluster_name)
-        all_results.append(result)
 
-    print("\nEvaluasi JACCARD Models")
-    for model in JACCARD_MODELS:
-        path = f"output/{cluster_name}/mapping_jaccard_{model}_{cluster_name}.csv"
-        result = evaluate_single_mapping(path, gt_set, model, cluster_name)
-        all_results.append(result)
+    for model in COSINE_MODELS + JACCARD_MODELS:
+        sim_type = "cosine" if model in COSINE_MODELS else "jaccard"
 
-    # Simpan seluruh hasil evaluasi
-    pd.DataFrame(all_results).to_csv(f"output/{cluster_name}/evaluation_all_models_{cluster_name}.csv", index=False)
-    print(f"\nSemua hasil evaluasi disimpan ke evaluation_all_models_{cluster_name}.csv")
-    print(f"Total waktu evaluasi: {time.time() - start:.2f} detik")
+        original_path = f"output/{cluster_name}/mapping_{sim_type}_{model}_{cluster_name}.csv"
+        expanded_path = f"output/{cluster_name}/expanded_mapping_{sim_type}_{model}_{cluster_name}.csv"
+
+        res_orig = evaluate_single_mapping(original_path, gt_set, model, cluster_name, expanded=False)
+        res_expd = evaluate_single_mapping(expanded_path, gt_set, model, cluster_name, expanded=True)
+
+        if res_orig is not None:
+            all_results.append(res_orig)
+        if res_expd is not None:
+            all_results.append(res_expd)
+
+    # Gabungkan semua ke satu DataFrame
+    if all_results:
+        final_df = pd.concat(all_results, ignore_index=True)
+        out_path = f"output/{cluster_name}/all_evaluation_results_{cluster_name}.csv"
+        final_df.to_csv(out_path, index=False)
+        print(f"\nSemua hasil evaluasi disimpan ke: {out_path}")
+        print(final_df)
+    else:
+        print("Tidak ada hasil evaluasi yang valid.")
+
+    print(f"\nTotal waktu evaluasi: {time.time() - start:.2f} detik")

@@ -6,34 +6,35 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 # --- Utilitas ---
 def join_skills(skill_lists):
-    return [" ".join(skills) if isinstance(skills, list) else "" for skills in skill_lists]
-
-def join_all_skills_column(df, column):
-    all_skills = set()
-    for skills in df[column]:
+    cleaned = []
+    for skills in skill_lists:
         if isinstance(skills, list):
-            all_skills.update(skills)
+            cleaned.append(" ".join(skills))
         elif isinstance(skills, str):
             try:
-                skills_list = ast.literal_eval(skills)
-                if isinstance(skills_list, list):
-                    all_skills.update(skills_list)
+                parsed = ast.literal_eval(skills)
+                if isinstance(parsed, list):
+                    cleaned.append(" ".join(parsed))
+            except:
+                cleaned.append("")
+        else:
+            cleaned.append("")
+    return cleaned
+
+
+def join_all_skills_column(df, column):
+    all_skills = []
+    for skills in df[column]:
+        if isinstance(skills, list):
+            all_skills.extend(skills)
+        elif isinstance(skills, str):
+            try:
+                parsed = ast.literal_eval(skills)
+                if isinstance(parsed, list):
+                    all_skills.extend(parsed)
             except:
                 continue
     return " ".join(all_skills)
-
-def combine_columns(df, new_col, base_cols):
-    combined = []
-    for _, row in df.iterrows():
-        merged = set()
-        for col in base_cols:
-            try:
-                skills = eval(row[col]) if isinstance(row[col], str) else []
-                merged.update(skills)
-            except:
-                continue
-        combined.append(list(merged))
-    df[new_col] = combined
 
 def preprocess_rake_string(rake_entry):
     if isinstance(rake_entry, str):
@@ -58,6 +59,23 @@ def parse_yake_list(yake_entry):
         return yake_entry
     return []
 
+# --- EKSPANSI LEVEL SFIA ---
+def expand_skill_levels(skill_levels, sfia_df):
+    expanded = set()
+    for item in skill_levels:
+        if isinstance(item, str) and ' ' in item:
+            skill, level_str = item.rsplit(' ', 1)
+            try:
+                level = int(level_str)
+                available_levels = sfia_df[sfia_df['SFIA_Skill_Level'].str.startswith(skill + ' ')]['SFIA_Skill_Level']
+                for l in range(1, level + 1):
+                    candidate = f"{skill} {l}"
+                    if candidate in set(available_levels):
+                        expanded.add(candidate)
+            except:
+                continue
+    return expanded
+
 # Mapping COSINE
 def map_skills_cosine(jobs_df, sfia_df, job_col, sfia_col, cluster_name, model_name, threshold=0.2):
     combined_job_text = join_all_skills_column(jobs_df, job_col)
@@ -77,6 +95,13 @@ def map_skills_cosine(jobs_df, sfia_df, job_col, sfia_col, cluster_name, model_n
         f"output/{cluster_name}/mapping_cosine_{model_name}_{cluster_name}.csv", index=False
     )
     print(f"Cosine mapping '{model_name}' disimpan ke mapping_cosine_{model_name}_{cluster_name}.csv")
+
+    expanded_set = sorted(expand_skill_levels(unique_predicted, sfia_df))
+    pd.DataFrame({'expanded_matched_skills': expanded_set}).to_csv(
+        f"output/{cluster_name}/expanded_mapping_cosine_{model_name}_{cluster_name}.csv", index=False
+    )
+    print(f"Cosine mapping '{model_name}' disimpan ke mapping_cosine_{model_name}_{cluster_name}.csv ({len(unique_predicted)} skill)")
+    print(f"Setelah ekspansi level: {len(expanded_set)} skill → expanded_mapping_cosine_{model_name}_{cluster_name}.csv")
 
 # Mapping JACCARD
 def jaccard_similarity(set1, set2):
@@ -104,9 +129,18 @@ def map_skills_jaccard_per_job(jobs_df, sfia_df, job_col, sfia_col, cluster_name
                     matched_sfias.add(sfia_df['SFIA_Skill_Level'].iloc[sfia_index])
 
     if matched_sfias:
-        result_df = pd.DataFrame({'matched_skills': sorted(matched_sfias)})
-        result_df.to_csv(f"output/{cluster_name}/mapping_jaccard_{model_name}_{cluster_name}.csv", index=False)
-        print(f"Jaccard mapping '{model_name}' disimpan ke mapping_jaccard_{model_name}_{cluster_name}.csv")
+        matched_list = sorted(matched_sfias)
+        expanded_list = sorted(expand_skill_levels(matched_list, sfia_df))
+
+        pd.DataFrame({'matched_skills': matched_list}).to_csv(
+            f"output/{cluster_name}/mapping_jaccard_{model_name}_{cluster_name}.csv", index=False
+        )
+        pd.DataFrame({'expanded_skills': expanded_list}).to_csv(
+            f"output/{cluster_name}/expanded_mapping_jaccard_{model_name}_{cluster_name}.csv", index=False
+        )
+
+        print(f"Jaccard mapping '{model_name}' disimpan ke mapping_jaccard_{model_name}_{cluster_name}.csv ({len(matched_list)} skill)")
+        print(f"Setelah ekspansi level: {len(expanded_list)} skill → expanded_mapping_jaccard_{model_name}_{cluster_name}.csv")
     else:
         print(f"Tidak ada hasil mapping untuk model {model_name}")
 
@@ -118,49 +152,26 @@ if __name__ == '__main__':
     jobs_df = pd.read_csv(f"output/{cluster_name}/skills_extracted_jobs_{cluster_name}.csv")
     sfia_df = pd.read_csv(f"output/{cluster_name}/skills_extracted_sfia_{cluster_name}.csv")
 
-    # jobs_df["rake_skills"] = jobs_df["rake_skills"].apply(preprocess_rake_string)
-    # sfia_df["rake_skills"] = sfia_df["rake_skills"].apply(preprocess_rake_string)
+    jobs_df["skills_skillner_rake"] = jobs_df["skills_skillner_rake"].apply(preprocess_rake_string)
+    sfia_df["skills_skillner_rake"] = sfia_df["skills_skillner_rake"].apply(preprocess_rake_string)
+    jobs_df["skills_ner_bert_rake"] = jobs_df["skills_ner_bert_rake"].apply(preprocess_rake_string)
+    sfia_df["skills_ner_bert_rake"] = sfia_df["skills_ner_bert_rake"].apply(preprocess_rake_string)
 
-    jobs_df["yake_skills"] = jobs_df["yake_skills"].apply(lambda x: parse_yake_list(x))
-    sfia_df["yake_skills"] = sfia_df["yake_skills"].apply(lambda x: parse_yake_list(x))
+    jobs_df["skills_skillner_yake"] = jobs_df["skills_skillner_yake"].apply(lambda x: parse_yake_list(x))
+    sfia_df["skills_skillner_yake"] = sfia_df["skills_skillner_yake"].apply(lambda x: parse_yake_list(x))
+    jobs_df["skills_ner_bert_yake"] = jobs_df["skills_ner_bert_yake"].apply(lambda x: parse_yake_list(x))
+    sfia_df["skills_ner_bert_yake"] = sfia_df["skills_ner_bert_yake"].apply(lambda x: parse_yake_list(x))
 
-    # print(jobs_df["yake_skills"])
-    # print(sfia_df["yake_skills"])
+    print(jobs_df["skills_skillner_rake"])
+    print(sfia_df["skills_skillner_rake"])
 
-    # === GABUNGKAN KOLOM MODEL ===
-    print("Menggabungkan kolom model...")
-    combine_columns(jobs_df, "skills_skillner_tfidf", ["skills_skillner"])
-    combine_columns(jobs_df, "skills_skillner_keybert_tfidf", ["skills_skillner", "keybert_skills"])
-    combine_columns(jobs_df, "skills_ner_bert_tfidf", ["skills_ner_bert"])
-    combine_columns(jobs_df, "skills_ner_bert_keybert_tfidf", ["skills_ner_bert", "keybert_skills"])
-    combine_columns(jobs_df, "skills_skillner_qe_tfidf", ["skills_skillner_qe"])
-    combine_columns(jobs_df, "skills_skillner_qe_keybert_tfidf", ["skills_skillner_qe", "keybert_skills"])
-
-    combine_columns(jobs_df, "skills_skillner_rake", ["skills_skillner", "rake_skills"])
-    combine_columns(jobs_df, "skills_skillner_yake", ["skills_skillner", "yake_skills"])
-    combine_columns(jobs_df, "skills_ner_bert_rake", ["skills_ner_bert", "rake_skills"])
-    combine_columns(jobs_df, "skills_ner_bert_yake", ["skills_ner_bert", "yake_skills"])
-
-    combine_columns(sfia_df, "skills_skillner_tfidf", ["skills_skillner"])
-    combine_columns(sfia_df, "skills_skillner_keybert_tfidf", ["skills_skillner", "keybert_skills"])
-    combine_columns(sfia_df, "skills_ner_bert_tfidf", ["skills_ner_bert"])
-    combine_columns(sfia_df, "skills_ner_bert_keybert_tfidf", ["skills_ner_bert", "keybert_skills"])
-    combine_columns(sfia_df, "skills_skillner_qe_tfidf", ["skills_skillner_qe"])
-    combine_columns(sfia_df, "skills_skillner_qe_keybert_tfidf", ["skills_skillner_qe", "keybert_skills"])
-
-    combine_columns(sfia_df, "skills_skillner_rake", ["skills_skillner", "rake_skills"])
-    combine_columns(sfia_df, "skills_skillner_yake", ["skills_skillner", "yake_skills"])
-    combine_columns(sfia_df, "skills_ner_bert_rake", ["skills_ner_bert", "rake_skills"])
-    combine_columns(sfia_df, "skills_ner_bert_yake", ["skills_ner_bert", "yake_skills"])
-
-    # === MODEL KONFIGURASI ===
     COSINE_MODELS = [
-        "skills_skillner_tfidf",
-        "skills_skillner_keybert_tfidf",
-        "skills_ner_bert_tfidf",
-        "skills_ner_bert_keybert_tfidf",
-        "skills_skillner_qe_tfidf",
-        "skills_skillner_qe_keybert_tfidf"
+        "skills_skillner",
+        "skills_skillner_keybert",
+        "skills_ner_bert",
+        "skills_ner_bert_keybert",
+        "skills_skillner_qe",
+        "skills_skillner_qe_keybert"
     ]
 
     JACCARD_MODELS = [
