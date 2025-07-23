@@ -3,18 +3,31 @@ import nltk
 from nltk.corpus import wordnet as wn
 nltk.download('wordnet')
 nltk.download('omw-1.4')
-skill_extractor, rake_extractor, yake_extractor, kw_model, ner_pipeline = load_models()
-
+skill_extractor, rake_extractor, yake_extractor, kw_model = load_models()
 
 def extract_skills_skillner(text):
-    if not isinstance(text, str): return []
-    annotations = skill_extractor.annotate(text)
-    skills = set()
-    for match in annotations['results'].get('full_matches', []):
-        skills.add(match['doc_node_value'].lower())
-    for match in annotations['results'].get('ngram_scored', []):
-        skills.add(match['doc_node_value'].lower())
-    return list(skills)
+    if not isinstance(text, str) or not text.strip():
+            return []
+            
+    try:
+        annotations = skill_extractor.annotate(text)
+        skills = set()
+        
+        results = annotations.get('results', {})
+        if not results:
+            return []
+
+        for match in results.get('full_matches', []):
+            skills.add(match['doc_node_value'].lower())
+            
+        for match in results.get('ngram_scored', []):
+            skills.add(match['doc_node_value'].lower())
+            
+        return list(skills)
+    
+    except Exception as e:
+        print(f"Terjadi error saat memproses teks: '{str(text)[:50]}...'. Error: {e}")
+        return []
 
 def expand_terms(term):
 
@@ -37,18 +50,12 @@ def extract_skills_skillner_qe(text):
 
     return list(expanded_skills)
 
-def extract_ner_bert_skills(text):
-    if not isinstance(text, str) or not text.strip(): return []
-    try:
-        ner_results = ner_pipeline(text)
-        return list({entity['word'].lower() for entity in ner_results})
-    except:
-        return []
-
 def extract_rake_keywords(text):
-    if not isinstance(text, str): return []
+    if not isinstance(text, str) or not text.strip():
+        return []
     rake_extractor.extract_keywords_from_text(text)
-    return list(set([phrase.lower().strip() for phrase in rake_extractor.get_ranked_phrases()]))
+    keywords = rake_extractor.get_ranked_phrases()
+    return [kw.strip().lower() for kw in keywords]
 
 def extract_yake_keywords(text):
     if not isinstance(text, str): return []

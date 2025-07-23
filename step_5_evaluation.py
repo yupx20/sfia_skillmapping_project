@@ -25,12 +25,12 @@ def evaluate_single_mapping(mapping_file: str, gt_set: set,
         print(f"File tidak ditemukan: {mapping_file}")
         return None
 
-    df = pd.read_csv(mapping_file)
+    df = pd.read_excel(mapping_file)
     if col_name not in df.columns:
         print(f"Kolom '{col_name}' tidak ditemukan di {mapping_file}")
         return None
 
-    predicted_set = set(df[col_name].dropna())
+    predicted_set = set(df[col_name].unique())
 
     # Hitung metrik
     tp = len(predicted_set & gt_set)
@@ -56,24 +56,19 @@ def evaluate_single_mapping(mapping_file: str, gt_set: set,
 # --- MAIN ---
 if __name__ == '__main__':
     start = time.time()
-    cluster_name = "IS"
+    cluster_name = "CS" # Ganti CS atau IS
     gt_file = "data/GT_Pakar1.xlsx"
     gt_sheet = "Ilmu Komputer" if cluster_name == "CS" else "Sistem Informasi"
 
     COSINE_MODELS = [
-        "skills_skillner",
-        "skills_skillner_keybert",
-        "skills_ner_bert",
-        "skills_ner_bert_keybert",
-        "skills_skillner_qe",
-        "skills_skillner_qe_keybert"
-    ]
-
-    JACCARD_MODELS = [
-        "skills_skillner_rake",
-        "skills_skillner_yake",
-        "skills_ner_bert_rake",
-        "skills_ner_bert_yake"
+        "SkillNER",
+        "SkillNER QE",
+        "SkillNER RAKE",
+        "SkillNER YAKE",
+        "SkillNER_KeyBERT",
+        "SkillNER QE_KeyBERT",
+        "SkillNER RAKE_KeyBERT",
+        "SkillNER YAKE_KeyBERT"
     ]
 
     # Inisialisasi ground truth
@@ -82,11 +77,11 @@ if __name__ == '__main__':
     # Simpan semua hasil evaluasi
     all_results = []
 
-    for model in COSINE_MODELS + JACCARD_MODELS:
-        sim_type = "cosine" if model in COSINE_MODELS else "jaccard"
+    for model in COSINE_MODELS:
+        sim_type = "cosine"
 
-        original_path = f"output/{cluster_name}/mapping_{sim_type}_{model}_{cluster_name}.csv"
-        expanded_path = f"output/{cluster_name}/expanded_mapping_{sim_type}_{model}_{cluster_name}.csv"
+        original_path = f"output/{cluster_name}/mapping_{sim_type}_{model}_{cluster_name}.xlsx"
+        expanded_path = f"output/{cluster_name}/expanded_mapping_{sim_type}_{model}_{cluster_name}.xlsx"
 
         res_orig = evaluate_single_mapping(original_path, gt_set, model, cluster_name, expanded=False)
         res_expd = evaluate_single_mapping(expanded_path, gt_set, model, cluster_name, expanded=True)
@@ -99,8 +94,8 @@ if __name__ == '__main__':
     # Gabungkan semua ke satu DataFrame
     if all_results:
         final_df = pd.concat(all_results, ignore_index=True)
-        out_path = f"output/{cluster_name}/all_evaluation_results_{cluster_name}.csv"
-        final_df.to_csv(out_path, index=False)
+        out_path = f"output/{cluster_name}/all_evaluation_results_{cluster_name}.xlsx"
+        final_df.to_excel(out_path, index=False)
         print(f"\nSemua hasil evaluasi disimpan ke: {out_path}")
         print(final_df)
     else:

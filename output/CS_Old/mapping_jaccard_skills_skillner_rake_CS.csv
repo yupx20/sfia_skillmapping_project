@@ -1,0 +1,295 @@
+matched_skills,similarity_score
+Database design 4,1.0
+Risk management 7,1.0
+Offensive cyber operations 3,1.0
+Offensive cyber operations 5,1.0
+Marketing management 4,1.0
+Service catalogue management 5,1.0
+Service acceptance 5,1.0
+Strategic planning 6,1.0
+Enterprise and business architecture 6,1.0
+Enterprise and business architecture 7,1.0
+Measurement 2,1.0
+Audit 4,1.0
+Quality management 5,1.0
+Quality management 6,1.0
+"Portfolio, programme and project support 3",1.0
+Systems integration and build 4,1.0
+Content publishing 5,1.0
+Content publishing 6,1.0
+Release management 5,1.0
+Deployment 5,1.0
+Facilities management 5,1.0
+Availability management 3,1.0
+Problem management 2,1.0
+Problem management 3,1.0
+Problem management 4,1.0
+Service acceptance 6,1.0
+Security operations 6,1.0
+Employee experience 4,1.0
+Sourcing 6,1.0
+Business administration 5,1.0
+Data management 3,1.0
+Teaching 3,1.0
+Stakeholder relationship management 6,1.0
+Governance 6,1.0
+Audit 7,1.0
+Quality assurance 4,1.0
+Quality assurance 5,1.0
+Penetration testing 5,1.0
+Resourcing 3,1.0
+Sales support 6,1.0
+Technology service management 5,1.0
+Service level management 2,1.0
+Service level management 3,1.0
+Service level management 6,1.0
+Radio frequency engineering 5,1.0
+Organisational facilitation 4,1.0
+Strategic planning 4,1.0
+Budgeting and forecasting 3,1.0
+Financial analysis 3,1.0
+Investment appraisal 5,1.0
+Risk management 3,1.0
+Quality assurance 3,1.0
+Requirements definition and management 4,1.0
+User acceptance testing 3,1.0
+Functional testing 4,1.0
+Process testing 2,1.0
+Knowledge management 3,1.0
+Release management 3,1.0
+Asset management 2,1.0
+Service acceptance 3,1.0
+Penetration testing 3,1.0
+Analytical classification and coding 2,1.0
+Learning and development management 2,1.0
+Learning delivery 2,1.0
+Certification scheme operation 4,1.0
+Digital marketing 2,1.0
+Budgeting and forecasting 6,1.0
+Measurement 6,1.0
+Information security 5,1.0
+Information security 6,1.0
+Information assurance 5,1.0
+Information assurance 6,1.0
+Vulnerability research 5,1.0
+Quality management 7,1.0
+Consultancy 6,1.0
+Methods and tools 4,1.0
+Methods and tools 6,1.0
+Requirements definition and management 6,1.0
+Business process improvement 3,1.0
+Business process improvement 7,1.0
+Organisational change enablement 5,1.0
+Product management 3,1.0
+Systems design 6,1.0
+Network design 6,1.0
+Infrastructure design 6,1.0
+Hardware design 6,1.0
+Programming/software development 6,1.0
+Systems integration and build 5,1.0
+Systems integration and build 6,1.0
+Software configuration 6,1.0
+Data analytics 7,1.0
+Data science 6,1.0
+Machine learning 6,1.0
+User research 5,1.0
+User research 6,1.0
+Customer experience 6,1.0
+User experience analysis 5,1.0
+User experience design 5,1.0
+Infrastructure operations 5,1.0
+System software administration 5,1.0
+Network support 5,1.0
+Configuration management 5,1.0
+Configuration management 6,1.0
+Change control 5,1.0
+Cybercrime investigation 6,1.0
+Database administration 5,1.0
+Competency assessment 4,1.0
+Customer engagement and loyalty 6,1.0
+Workforce planning 5,1.0
+Information management 6,1.0
+Benefits management 5,1.0
+Measurement 5,1.0
+Vulnerability research 6,1.0
+Threat intelligence 6,1.0
+Risk management 5,1.0
+User acceptance testing 5,1.0
+Organisational capability development 6,1.0
+Organisational change management 3,1.0
+Systems and software lifecycle engineering 6,1.0
+Non-functional testing 6,1.0
+Real-time/embedded systems development 6,1.0
+Safety engineering 4,1.0
+Safety engineering 5,1.0
+Data management 5,1.0
+Data management 6,1.0
+Data engineering 5,1.0
+User research 4,1.0
+Customer experience 5,1.0
+Accessibility and inclusion 4,1.0
+User experience design 6,1.0
+Systems installation and removal 5,1.0
+Release management 4,1.0
+Digital forensics 5,1.0
+Learning delivery 5,1.0
+Sourcing 5,1.0
+Selling 5,1.0
+Digital marketing 5,1.0
+Solution architecture 5,1.0
+Formal research 5,1.0
+Sustainability 5,1.0
+Sustainability 6,1.0
+Budgeting and forecasting 5,1.0
+Financial analysis 4,1.0
+Financial analysis 5,1.0
+Cost management 4,1.0
+Measurement 3,1.0
+Vulnerability research 3,1.0
+Vulnerability research 4,1.0
+Risk management 6,1.0
+Methods and tools 2,1.0
+Methods and tools 3,1.0
+Methods and tools 5,1.0
+Project management 4,1.0
+Project management 6,1.0
+"Portfolio, programme and project support 4",1.0
+"Portfolio, programme and project support 5",1.0
+Delivery management 3,1.0
+Delivery management 4,1.0
+Requirements definition and management 5,1.0
+Business process improvement 5,1.0
+Business process improvement 6,1.0
+Organisation design and implementation 3,1.0
+Organisation design and implementation 5,1.0
+Organisation design and implementation 6,1.0
+Organisational change management 6,1.0
+Product management 5,1.0
+Systems development management 4,1.0
+Systems development management 5,1.0
+Systems and software lifecycle engineering 3,1.0
+Systems and software lifecycle engineering 4,1.0
+Systems design 5,1.0
+Software design 2,1.0
+Software design 3,1.0
+Software design 5,1.0
+Software design 6,1.0
+Hardware design 2,1.0
+Hardware design 3,1.0
+Hardware design 5,1.0
+Programming/software development 2,1.0
+Programming/software development 3,1.0
+Programming/software development 4,1.0
+Programming/software development 5,1.0
+Systems integration and build 2,1.0
+Functional testing 5,1.0
+Non-functional testing 1,1.0
+Non-functional testing 5,1.0
+Software configuration 3,1.0
+Software configuration 4,1.0
+Software configuration 5,1.0
+Real-time/embedded systems development 3,1.0
+Safety engineering 3,1.0
+Safety assessment 4,1.0
+Radio frequency engineering 3,1.0
+Animation development 2,1.0
+Data analytics 2,1.0
+Data analytics 3,1.0
+Data science 2,1.0
+Data science 5,1.0
+Machine learning 2,1.0
+Machine learning 3,1.0
+Machine learning 5,1.0
+Business intelligence 2,1.0
+Business intelligence 5,1.0
+Data engineering 3,1.0
+Data engineering 6,1.0
+Data visualisation 2,1.0
+Data visualisation 5,1.0
+Customer experience 3,1.0
+User experience analysis 3,1.0
+User experience analysis 4,1.0
+User experience design 3,1.0
+User experience evaluation 2,1.0
+User experience evaluation 4,1.0
+Content publishing 2,1.0
+Content publishing 4,1.0
+Knowledge management 5,1.0
+Application support 3,1.0
+Application support 4,1.0
+Infrastructure operations 3,1.0
+Infrastructure operations 4,1.0
+Network support 3,1.0
+Network support 4,1.0
+Systems installation and removal 2,1.0
+Systems installation and removal 3,1.0
+Configuration management 2,1.0
+Configuration management 3,1.0
+Configuration management 4,1.0
+Release management 6,1.0
+Deployment 2,1.0
+Deployment 3,1.0
+Deployment 4,1.0
+Deployment 6,1.0
+Availability management 6,1.0
+Capacity management 3,1.0
+Incident management 1,1.0
+Incident management 3,1.0
+Incident management 4,1.0
+Change control 2,1.0
+Change control 3,1.0
+Security operations 4,1.0
+Vulnerability assessment 2,1.0
+Vulnerability assessment 4,1.0
+Vulnerability assessment 5,1.0
+Cybercrime investigation 5,1.0
+Database administration 3,1.0
+Resourcing 5,1.0
+Competency assessment 2,1.0
+Competency assessment 3,1.0
+Competency assessment 5,1.0
+Competency assessment 6,1.0
+Sourcing 3,1.0
+Business administration 3,1.0
+Business administration 4,1.0
+Selling 3,1.0
+Market research 3,1.0
+Marketing campaign management 3,1.0
+Marketing campaign management 5,1.0
+Digital marketing 4,1.0
+Innovation management 5,1.0
+Innovation management 6,1.0
+Animation development 6,1.0
+Brand management 5,1.0
+Marketing campaign management 4,1.0
+Formal research 2,1.0
+Formal research 3,1.0
+Performance management 4,1.0
+Performance management 5,1.0
+Information management 5,1.0
+Enterprise and business architecture 5,1.0
+Information assurance 7,1.0
+Information and data compliance 4,1.0
+Information and data compliance 6,1.0
+Threat intelligence 5,1.0
+Portfolio management 5,1.0
+Business situation analysis 2,1.0
+Storage management 6,1.0
+Service catalogue management 4,1.0
+Incident management 2,1.0
+Vulnerability assessment 3,1.0
+Business administration 6,1.0
+Systems and software lifecycle engineering 5,1.0
+Financial management 5,1.0
+Learning and development management 3,1.0
+Business process improvement 4,1.0
+Data analytics 4,1.0
+Data analytics 6,1.0
+Continuity management 5,1.0
+Database administration 2,1.0
+Systems integration and build 3,1.0
+Digital forensics 6,1.0
+Application support 5,1.0
+Certification scheme operation 2,1.0
+Certification scheme operation 6,1.0
+Customer service support 2,1.0

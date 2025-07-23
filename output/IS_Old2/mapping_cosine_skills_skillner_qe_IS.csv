@@ -1,0 +1,195 @@
+matched_skills,similarity_score
+Consultancy 7,0.37432252666724564
+Customer service support 5,0.3654558080649731
+Business process improvement 5,0.36009457764674624
+Deployment 4,0.3560762663857018
+Network support 3,0.34590218785835913
+Learning and development management 5,0.3426500823985715
+Information security 4,0.34154591776659604
+Systems integration and build 5,0.33986904303862925
+Programme management 6,0.33851337362201395
+Offensive cyber operations 6,0.3323298360710532
+Offensive cyber operations 5,0.33144313931187724
+Offensive cyber operations 3,0.3304176501033771
+Formal research 5,0.32979059654215326
+Methods and tools 5,0.3286533072240369
+Deployment 6,0.32651278328603056
+Records management 3,0.3264516515273349
+Business intelligence 5,0.323844826294382
+Machine learning 5,0.3226696422057529
+Security operations 4,0.31619785156705316
+Risk management 6,0.3127543251788908
+Benefits management 6,0.31224621823561255
+Asset management 5,0.3112605889471661
+Solution architecture 6,0.3102404544573011
+Organisational capability development 6,0.30831600255852437
+Availability management 4,0.3082700894062497
+Data modelling and design 5,0.30660728437760504
+Offensive cyber operations 4,0.3007231864780933
+Formal research 6,0.29868847509705587
+Systems and software lifecycle engineering 6,0.29807724017926673
+Network support 4,0.29745279784045925
+Data management 2,0.29743187348581757
+Business process improvement 3,0.29736919255554917
+Configuration management 5,0.295280286815354
+User experience analysis 5,0.2941201512697556
+"Portfolio, programme and project support 3",0.29402884908318844
+Incident management 5,0.2934757404786424
+Software design 6,0.29297081335949215
+Data engineering 2,0.29123557891051144
+Content publishing 6,0.2897751969714115
+Requirements definition and management 5,0.28914028464707814
+Project management 7,0.2871840240399648
+Infrastructure operations 4,0.28525188348888875
+Specialist advice 4,0.28479865987442965
+Identity and access management 2,0.28394432841065964
+User experience evaluation 5,0.28166343400804367
+Technology service management 7,0.2810693157215132
+Programming/software development 3,0.2783010658998223
+System software administration 5,0.2782638424126598
+Competency assessment 5,0.2779667413974361
+Availability management 3,0.27650140674397355
+Delivery management 4,0.27632779936546953
+Deployment 3,0.276054404877243
+Product management 5,0.2738973587535326
+Database administration 4,0.2736789626850145
+Selling 5,0.2734674970177132
+Release management 5,0.27216328133497286
+Data modelling and design 4,0.2716852415670281
+Change control 5,0.2713931527544454
+Technology service management 6,0.2711148958710384
+Application support 5,0.27078501917906045
+Service level management 6,0.2706741564438906
+Selling 4,0.2687025810434148
+Enterprise and business architecture 5,0.26633287948274553
+Service catalogue management 5,0.2662829731669263
+Demand management 5,0.2649433436163183
+Configuration management 4,0.2649179686411835
+User acceptance testing 4,0.2633643560016951
+Business situation analysis 5,0.2621306649272912
+Resourcing 3,0.2618393968422393
+Offensive cyber operations 2,0.26149617156468763
+Data science 5,0.2609205240490175
+Information assurance 3,0.2601511665911833
+Data engineering 4,0.2594154736297512
+Information security 5,0.2581597655004817
+Availability management 6,0.25807293758216976
+Organisational capability development 5,0.2573156484722274
+Business administration 1,0.2572847238326822
+"Portfolio, programme and project support 6",0.25674125090313454
+Knowledge management 5,0.25670522772382104
+Systems development management 5,0.25646190235846694
+Financial analysis 5,0.25645996356099304
+Information systems coordination 6,0.2549987379865779
+Vulnerability research 5,0.2529461523066849
+Data modelling and design 3,0.25277006165209354
+Risk management 2,0.25200277487654543
+Business administration 5,0.25193477627333816
+Animation development 5,0.2519325513611987
+Knowledge management 3,0.2512247365250008
+Data management 3,0.25078170831408947
+Audit 7,0.2505255765191697
+Network support 5,0.2504899880158559
+Business administration 6,0.25035947043650764
+Systems development management 4,0.25013715563526917
+Service level management 4,0.2500609431959749
+Specialist advice 5,0.24996557988518717
+Service acceptance 4,0.24975735384978137
+Consultancy 6,0.2496488167170504
+Data science 3,0.2495069498248726
+Asset management 3,0.2488011776595622
+Bid/proposal management 4,0.24788859997978535
+Delivery management 3,0.24551345933864496
+Methods and tools 3,0.2449866420511619
+Identity and access management 5,0.24376242452976746
+Continuity management 5,0.2431950035754339
+Digital forensics 5,0.24229646464556318
+Penetration testing 6,0.24215947571491644
+Security operations 1,0.24128593837197793
+Radio frequency engineering 3,0.24098004217330107
+Information assurance 2,0.240447614001661
+User acceptance testing 5,0.2396804921986706
+Information management 7,0.23950095726273077
+Content publishing 4,0.23864393020714547
+Security operations 3,0.23844495657289524
+Stakeholder relationship management 4,0.23776452146371627
+Systems and software lifecycle engineering 3,0.2363718380533948
+Data analytics 3,0.23628781961913636
+Feasibility assessment 5,0.23534777110959887
+Vulnerability research 6,0.23468698810291766
+Release management 2,0.23442285235904375
+Security operations 2,0.2341587848105892
+Systems design 2,0.233859342365336
+Programme management 7,0.2335575669169496
+"Portfolio, programme and project support 4",0.2323776132477483
+Software design 3,0.23208282000149866
+Project management 4,0.2316207090616237
+Methods and tools 2,0.23090851242513744
+Information management 6,0.23057894387603595
+Storage management 3,0.22994918757665395
+Resourcing 4,0.22971991148577456
+Safety engineering 6,0.22863464092069608
+Customer engagement and loyalty 4,0.2275468899849843
+Records management 5,0.22708017897864813
+Learning and development management 2,0.22700486952710183
+Application support 4,0.22659158575880187
+Infrastructure operations 3,0.226276074202648
+Quality assurance 6,0.2257692004710575
+Requirements definition and management 3,0.22561058719046279
+Artificial intelligence (AI) and data ethics 4,0.22540429684137006
+Resourcing 5,0.22534402854622107
+Facilities management 6,0.22508410112629285
+Data visualisation 2,0.2246286844005232
+Selling 3,0.2245786684846392
+Innovation management 5,0.2245188500061533
+Financial management 4,0.22411323531019192
+Incident management 4,0.22399054795413903
+Knowledge management 6,0.22328678644873498
+Cybercrime investigation 5,0.22307355926624575
+Graphic design 5,0.22300515535879561
+Systems design 6,0.22283178612286902
+Audit 4,0.2220868153376784
+Configuration management 2,0.22163023203635754
+Market research 3,0.2213240458841069
+Quality management 5,0.22126234859674052
+Storage management 6,0.220945071040035
+Service acceptance 3,0.22052599019698185
+Storage management 4,0.22050442204192544
+Network support 1,0.2191479125143371
+Data engineering 6,0.21884904118247092
+Identity and access management 3,0.2187123866594528
+Systems development management 7,0.2186605505624639
+Audit 6,0.2177668287396936
+Facilities management 5,0.2170691475649979
+Data engineering 3,0.21525695038926682
+Business process improvement 6,0.21494058968062207
+Configuration management 3,0.21449318671020337
+Asset management 2,0.21374766031361075
+Data management 4,0.21367219449018324
+Stakeholder relationship management 5,0.21340598288214885
+Learning delivery 5,0.21340306675943221
+Product management 4,0.2132535492949302
+Programming/software development 5,0.2125138167273615
+Digital marketing 2,0.21151379837438605
+Database administration 3,0.21076286436014885
+Safety engineering 5,0.21048619313019296
+Programming/software development 4,0.2093442418432561
+Service level management 5,0.2092890597931167
+Machine learning 2,0.20858131599513735
+Database design 5,0.20738195521157843
+Organisational change management 2,0.20692772668972112
+Accessibility and inclusion 4,0.20684462215175892
+Quality management 2,0.2060582185999948
+Risk management 3,0.20528949723967793
+Release management 3,0.205239956871062
+User research 4,0.2052197113023674
+Data analytics 5,0.2050090802956012
+Programming/software development 2,0.20466346147335301
+Organisational change management 3,0.2044017214019641
+Sourcing 5,0.20411948080775322
+Quality assurance 4,0.20411152637896712
+Business administration 2,0.20393429756278098
+Information security 7,0.20133504547757894
+Information assurance 4,0.20129778899185208
+Business administration 3,0.20070713170067395
+System software administration 2,0.20030643271710424

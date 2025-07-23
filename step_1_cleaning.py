@@ -22,8 +22,8 @@ def clean_job_data(filepath, cluster_name: str):
     df = df.drop_duplicates(subset=['job_description'])
     after_dedup = len(df)
 
-    df = df[~df['job_description'].apply(has_experience_requirement)]
-    after_experience_filter = len(df)
+    # df = df[~df['job_description'].apply(has_experience_requirement)]
+    # after_experience_filter = len(df)
 
     df = df.reset_index(drop=True)
     df['job_id'] = df.index
@@ -32,12 +32,17 @@ def clean_job_data(filepath, cluster_name: str):
     print(f" - Jumlah awal: {initial_count}")
     print(f" - Setelah drop NA: {after_dropna}")
     print(f" - Setelah hapus duplikat: {after_dedup}")
-    print(f" - Setelah filter pengalaman: {after_experience_filter}")
+    # print(f" - Setelah filter pengalaman: {after_experience_filter}")
 
     return df
 
 if __name__ == '__main__':
+    cluster_name = "CS"
+    df_cs = clean_job_data(f'data/{cluster_name}Jobs.xlsx', cluster_name)
+    df_cs.to_excel(f'output/{cluster_name}/cleaned_{cluster_name}Jobs.xlsx', index=False)
+    print(f"Data {cluster_name} cleaned dan disimpan ke cleaned_{cluster_name}Jobs.xlsx")
+
     cluster_name = "IS"
-    df = clean_job_data(f'data/{cluster_name}Jobs.xlsx', cluster_name)
-    df.to_csv(f'output/{cluster_name}/cleaned_{cluster_name}Jobs.csv', index=False)
-    print(f"Data {cluster_name} cleaned dan disimpan ke cleaned_{cluster_name}Jobs.csv")
+    df_is = clean_job_data(f'data/{cluster_name}Jobs.xlsx', cluster_name)
+    df_is.to_excel(f'output/{cluster_name}/cleaned_{cluster_name}Jobs.xlsx', index=False)
+    print(f"Data {cluster_name} cleaned dan disimpan ke cleaned_{cluster_name}Jobs.xlsx")
