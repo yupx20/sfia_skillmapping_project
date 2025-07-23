@@ -4,22 +4,6 @@ import ast
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-def join_skills(skill_lists):
-    cleaned = []
-    for skills in skill_lists:
-        if isinstance(skills, list):
-            cleaned.append(" ".join(skills))
-        elif isinstance(skills, str):
-            try:
-                parsed = ast.literal_eval(skills)
-                if isinstance(parsed, list):
-                    cleaned.append(" ".join(parsed))
-            except:
-                cleaned.append("")
-        else:
-            cleaned.append("")
-    return cleaned
-
 def safe_literal_eval(val):
     try:
         if isinstance(val, str):
@@ -50,10 +34,8 @@ def expand_skill_levels(skill_levels, sfia_df):
 
 # Mapping COSINE
 def map_skills_cosine(jobs_df, sfia_df, job_col, sfia_col, cluster_name, model_name, threshold=0.2):
-    # MODIFIKASI: Logika diubah total untuk bekerja per-job, bukan agregat
     all_matches = []
     
-    # Fit TfidfVectorizer sekali saja untuk efisiensi
     corpus = jobs_df[job_col].apply(lambda x: " ".join(safe_literal_eval(x)))
     sfia_corpus = sfia_df[sfia_col].apply(lambda x: " ".join(safe_literal_eval(x)))
     vectorizer = TfidfVectorizer().fit(pd.concat([corpus, sfia_corpus]))

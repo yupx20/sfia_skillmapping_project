@@ -2,13 +2,15 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # Load data
-df_cs = pd.read_csv("CS_New/skills_extracted_jobs_CS.csv")
-df_is = pd.read_csv("IS_New/skills_extracted_jobs_IS.csv")
+df_cs = pd.read_excel("CS/skills_extracted_jobs_CS.xlsx")
+df_is = pd.read_excel("IS/skills_extracted_jobs_IS.xlsx")
 
 # Daftar kolom count yang ingin dibandingkan
 skill_count_columns = [
-    'skills_skillner_count',
-    'skills_skillner_qe_count'
+    'SkillNER_count',
+    'SkillNER QE_count',
+    'SkillNER RAKE_count',
+    'SkillNER YAKE_count'
 ]
 
 # Inisialisasi struktur hasil
@@ -34,11 +36,6 @@ def calculate_cluster_stats(df, cluster_name):
 calculate_cluster_stats(df_cs, 'CS')
 calculate_cluster_stats(df_is, 'IS')
 
-label_mapping = {
-    'skills_skillner': 'SkillNER',
-    'skills_skillner_qe': 'SkillNER QE'
-}
-
 # Buat DataFrame dari hasil
 results_df = pd.DataFrame(results)
 
@@ -52,7 +49,7 @@ x = range(len(skill_count_columns))
 # Filter data
 cs_totals = results_df[results_df['Cluster'] == 'CS']['Total']
 is_totals = results_df[results_df['Cluster'] == 'IS']['Total']
-labels = results_df[results_df['Cluster'] == 'CS']['Model'].map(label_mapping)
+labels = results_df[results_df['Cluster'] == 'CS']['Model']
 
 # Bar positions
 x_pos = list(x)

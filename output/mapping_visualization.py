@@ -1,21 +1,20 @@
 import pandas as pd
 
 COSINE_MODELS = [
-    "skills_skillner",
-    "skills_skillner_keybert",
-    "skills_skillner_qe",
-    "skills_skillner_qe_keybert"
-]
-
-JACCARD_MODELS = [
-    "skills_skillner_rake",
-    "skills_skillner_yake"
+    "SkillNER",
+    "SkillNER QE",
+    "SkillNER RAKE",
+    "SkillNER YAKE",
+    "SkillNER_KeyBERT",
+    "SkillNER QE_KeyBERT",
+    "SkillNER RAKE_KeyBERT",
+    "SkillNER YAKE_KeyBERT"
 ]
 
 # --- TAMBAHAN UNTUK VISUALISASI ---
 def generate_visual_sfiascore(mapping_file, sfia_file, output_file):
-    mapping_df = pd.read_csv(mapping_file)
-    sfia_df = pd.read_csv(sfia_file)
+    mapping_df = pd.read_excel(mapping_file)
+    sfia_df = pd.read_excel(sfia_file)
 
     # --- FIX: Pisahkan Skill dan Level secara aman ---
     split_data = mapping_df['matched_skills'].dropna().apply(lambda x: x.rsplit(' ', 1) if ' ' in x else [x, None])
@@ -45,27 +44,17 @@ def generate_visual_sfiascore(mapping_file, sfia_file, output_file):
             visual_df = pd.concat([visual_df, pd.DataFrame([new_row])], ignore_index=True)
 
     # --- Simpan hasil ---
-    visual_df.to_csv(output_file, index=False)
+    visual_df.to_excel(output_file, index=False)
     print(f"Visualisasi hasil skor disimpan ke: {output_file}")
 
 
-cluster_name = "IS"
+cluster_name = "IS" # Ubah CS atau IS
 
-# Jalankan visualisasi setelah COSINE dan JACCARD mapping
 for col in COSINE_MODELS:
     try:
-        mapping_file = f"{cluster_name}_New/mapping_cosine_{col}_{cluster_name}.csv"
-        sfia_file = f"{cluster_name}_New/skills_extracted_sfia_{cluster_name}.csv"
-        output_file = f"{cluster_name}_Visual/visual_mapping_cosine_{col}_{cluster_name}.csv"
+        mapping_file = f"{cluster_name}/mapping_cosine_{col}_{cluster_name}.xlsx"
+        sfia_file = f"{cluster_name}/skills_extracted_sfia_{cluster_name}.xlsx"
+        output_file = f"{cluster_name}_SFIAFormat/sfiaformat_mapping_cosine_{col}_{cluster_name}.xlsx"
         generate_visual_sfiascore(mapping_file, sfia_file, output_file)
     except Exception as e:
         print(f"Error visualisasi cosine '{col}': {e}")
-
-for col in JACCARD_MODELS:
-    try:
-        mapping_file = f"{cluster_name}_New/mapping_jaccard_{col}_{cluster_name}.csv"
-        sfia_file = f"{cluster_name}_New/skills_extracted_sfia_{cluster_name}.csv"
-        output_file = f"{cluster_name}_Visual/visual_mapping_jaccard_{col}_{cluster_name}.csv"
-        generate_visual_sfiascore(mapping_file, sfia_file, output_file)
-    except Exception as e:
-        print(f"Error visualisasi jaccard '{col}': {e}")
