@@ -25,6 +25,8 @@ def generate_visual_sfiascore(mapping_file, sfia_file, output_file):
     mapping_df = mapping_df.dropna(subset=['Level'])
     mapping_df['Level'] = mapping_df['Level'].astype(int)
 
+    max_scores_df = mapping_df.sort_values('similarity_score', ascending=False).drop_duplicates(['Skill', 'Level'])
+
     # --- Ambil semua skill dari SFIA agar format meniru data aslinya ---
     all_skills = sfia_df['Skill'].unique()
     columns = ['Skill'] + [f'Level {i}' for i in range(1, 8)]
@@ -32,7 +34,7 @@ def generate_visual_sfiascore(mapping_file, sfia_file, output_file):
     visual_df['Skill'] = all_skills
 
     # --- Masukkan skor untuk skill-level yang cocok ---
-    for _, row in mapping_df.iterrows():
+    for _, row in max_scores_df.iterrows():
         skill = row['Skill']
         level_col = f'Level {row["Level"]}'
         score = round(row['similarity_score'], 4)
@@ -48,7 +50,7 @@ def generate_visual_sfiascore(mapping_file, sfia_file, output_file):
     print(f"Visualisasi hasil skor disimpan ke: {output_file}")
 
 
-cluster_name = "IS" # Ubah CS atau IS
+cluster_name = "CS" # Ubah CS atau IS
 
 for col in COSINE_MODELS:
     try:
