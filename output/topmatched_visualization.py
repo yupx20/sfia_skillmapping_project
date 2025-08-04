@@ -2,88 +2,80 @@ import pandas as pd
 import os
 import glob
 import matplotlib.pyplot as plt
-import seaborn as sns
+import numpy as np
 
-def visualize_top_skills(cluster_name: str, top_n: int = 20):
+def visualize_skills_radar_grid(cluster_name: str, top_n: int = 5):
 
-    # Tentukan direktori input dan output
     input_directory = f"{cluster_name}/"
-    output_directory = f"{cluster_name}_Visual/"
-
-    # Buat folder output jika belum ada
+    output_directory = f"{cluster_name}_Visual_Radar/"
     os.makedirs(output_directory, exist_ok=True)
-    
-    # Cari semua file Excel hasil pemetaan di direktori input
-    # Menggunakan glob untuk mencari file yang cocok dengan pola
-    mapping_files = glob.glob(f"{input_directory}mapping_*.xlsx") + \
-                    glob.glob(f"{input_directory}expanded_mapping_*.xlsx")
 
-    if not mapping_files:
-        print(f"Tidak ada file Excel hasil pemetaan yang ditemukan di folder: {input_directory}")
+    expanded_files = sorted(glob.glob(f"{input_directory}expanded_mapping_*.xlsx"))
+
+    if not expanded_files:
+        print(f"Tidak ada file 'expanded_mapping_*.xlsx' yang ditemukan di: {input_directory}")
         return
+    
+    fig, axes = plt.subplots(4, 2, figsize=(12, 24), subplot_kw=dict(polar=True))
 
-    print(f"Memproses {len(mapping_files)} file untuk klaster {cluster_name}...")
+    axes = axes.flatten()
 
-    # Loop untuk setiap file yang ditemukan
-    for file_path in mapping_files:
+    print(f"Membuat grid 4x2 untuk {len(expanded_files)} model...")
+
+    for i, file_path in enumerate(expanded_files):
+        if i >= 8:
+            print("Peringatan: Ditemukan lebih dari 8 file, hanya 8 pertama yang akan divisualisasikan.")
+            break
+
+        ax = axes[i]
+
         try:
-            # Dapatkan nama file dasar untuk penamaan
-            base_filename = os.path.basename(file_path).replace(".xlsx", "")
-            
-            # Tentukan kolom mana yang akan dianalisis berdasarkan nama file
-            if "expanded_mapping" in base_filename:
-                skill_column = 'expanded_matched_skills'
-            else:
-                skill_column = 'matched_skills'
-
-            # Baca file Excel
             df = pd.read_excel(file_path)
-            
-            if skill_column not in df.columns:
-                print(f"Peringatan: Kolom '{skill_column}' tidak ditemukan di file {base_filename}. File dilewati.")
-                continue
+            base_filename = os.path.basename(file_path)
 
-            # Hitung frekuensi kemunculan setiap skill dan ambil N teratas
-            skill_counts = df[skill_column].value_counts().nlargest(top_n)
+            model_name = base_filename.replace('expanded_mapping_cosine_', '').replace(f'_{cluster_name}.xlsx', '')
+            
+            skill_counts = df['expanded_matched_skills'].value_counts().nlargest(top_n)
 
             if skill_counts.empty:
-                print(f"Tidak ada data skill untuk divisualisasikan di file {base_filename}.")
+                ax.set_title(f"{model_name}\n(Tidak ada data)", color='red')
+                ax.set_yticklabels([])
+                ax.set_xticklabels([])
                 continue
 
-            # === Proses Visualisasi ===
-            plt.figure(figsize=(12, 10))
+            labels = skill_counts.index.tolist()
+            values = skill_counts.values.tolist()
+            num_vars = len(labels)
             
-            # Buat diagram batang menyamping (horizontal)
-            sns.barplot(x=skill_counts.values, y=skill_counts.index, palette="viridis", orient='h')
+            angles = np.linspace(0, 2 * np.pi, num_vars, endpoint=False).tolist()
+            angles += angles[:1]
             
-            # Balik urutan sumbu y agar skill paling sering muncul ada di atas
-            plt.gca()
+            values += values[:1]
 
-            # Atur judul dan label
-            plot_title = f'Top {top_n} Keterampilan SFIA Hasil Pemetaan\n(Model: {base_filename})'
-            plt.title(plot_title, fontsize=16)
-            plt.xlabel('Frekuensi Kemunculan', fontsize=12)
-            plt.ylabel('Keterampilan SFIA', fontsize=12)
+            ax.plot(angles, values, linewidth=2, linestyle='solid')
+            ax.fill(angles, values, alpha=0.25)
             
-            # Tambahkan angka frekuensi di ujung setiap bar
-            for index, value in enumerate(skill_counts.values):
-                plt.text(value, index, f' {value}', va='center', fontsize=10)
-
-            plt.tight_layout()
-
-            # Simpan visualisasi ke file gambar
-            output_filename = f"{output_directory}chart_{base_filename.replace('.xlsx', '.png')}"
-            plt.savefig(output_filename)
-            plt.close() 
-
-            print(f"  -> Visualisasi untuk '{base_filename}' disimpan ke '{output_filename}'")
+            ax.set_yticklabels([])
+            ax.set_xticks(angles[:-1])
+            ax.set_xticklabels(labels, size=12)
+            ax.set_title(model_name, size=16, y=1.15)
 
         except Exception as e:
-            print(f"Gagal memproses file {file_path}. Error: {e}")
-            
-    print(f"\nProses visualisasi untuk klaster {cluster_name} selesai.")
+            ax.set_title(f"Gagal memproses\n{os.path.basename(file_path)}", color='red')
+            print(f"Error pada file {file_path}: {e}")
+
+    for j in range(i + 1, len(axes)):
+        axes[j].set_visible(False)
+
+    fig.suptitle(f'Visualisasi Top {top_n} Skills SFIA untuk Setiap Model {cluster_name} (Expanded)', fontsize=20)
+    fig.tight_layout(rect=[0, 0.03, 1, 0.95], pad=2.0)
+
+    output_filename = f"{output_directory}grid_radar_all_models_{cluster_name}.png"
+    plt.savefig(output_filename)
+    plt.close()
+    
+    print(f"\nVisualisasi grid berhasil disimpan ke: '{output_filename}'")
 
 
 if __name__ == '__main__':
-    # visualize_top_skills(cluster_name='CS', top_n=20)
-    visualize_top_skills(cluster_name='IS', top_n=20)
+    visualize_skills_radar_grid('IS')
