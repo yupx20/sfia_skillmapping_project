@@ -42,7 +42,7 @@ def process_sheet(sheet_name, df1, df2, kappa_threshold=0.6):
 file1_path = 'Anotasi Skill - Rizfi.xlsx'
 file2_path = 'Anotasi Skill - Gopal.xlsx'
 output_file = 'Anotasi Skill (Kappa).xlsx'
-kappa_threshold = 0.6
+kappa_threshold = 0.5
 sheet_names = ['Job Posting', 'SFIA']
 
 with pd.ExcelWriter(output_file, engine='openpyxl') as writer:
