@@ -84,7 +84,7 @@ def calculate_kappa_per_row(df1, df2, annot_col, id_col):
 #     print(f"Kappa = {score:.4f} | Skill: {skill}")
 
 avg_jp_row, details_jp_row = calculate_kappa_per_row(gopal_job_posting_df, rizfi_job_posting_df, 'Hasil Anotasi Pakar', 'Nama Pekerjaan')
-print(f"\n\n>>> HASIL KAPPA PER-BARIS <<<")
+print(f"\n\n>>> HASIL KAPPA PER-BARIS (JOB POSTING) <<<")
 print(f"Rata-rata Kappa: {avg_jp_row:.4f}")
 print("--- Rincian Kappa per Baris ---")
 for job, score in details_jp_row:
@@ -100,7 +100,7 @@ print("\n\n")
 #     print(f"Kappa = {score:.4f} | Skill: {skill}")
 
 avg_sfia_row, details_sfia_row = calculate_kappa_per_row(gopal_sfia_df, rizfi_sfia_df, 'Hasil Anotasi Pakar', 'Skill - Level')
-print(f"\n\n>>> HASIL KAPPA PER-BARIS <<<")
+print(f"\n\n>>> HASIL KAPPA PER-BARIS (SFIA) <<<")
 print(f"Rata-rata Kappa: {avg_sfia_row:.4f}")
 print("--- Rincian Kappa per Baris ---")
 for skill_level, score in details_sfia_row:

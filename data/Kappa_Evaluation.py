@@ -10,6 +10,9 @@ rizfi_jp_df = pd.read_excel(rizfi_excel_file, sheet_name='Job Posting')
 gopal_sfia_df = pd.read_excel(gopal_excel_file, sheet_name='SFIA')
 rizfi_sfia_df = pd.read_excel(rizfi_excel_file, sheet_name='SFIA')
 
+def normalize(skill):
+    return skill.strip().lower().replace('-', ' ').replace('_', ' ').replace('  ', ' ')
+
 def evaluate_system(df_annotator1, df_annotator2, strategy='intersection'):
 
     list_precision = []
@@ -19,9 +22,9 @@ def evaluate_system(df_annotator1, df_annotator2, strategy='intersection'):
     for index, row1 in df_annotator1.iterrows():
         row2 = df_annotator2.loc[index]
 
-        system_skills = set(str(row1['Hasil Ekstraksi Sistem']).lower().strip().split('\n'))
-        annotator1_skills = set(str(row1['Hasil Anotasi Pakar']).lower().strip().split('\n'))
-        annotator2_skills = set(str(row2['Hasil Anotasi Pakar']).lower().strip().split('\n'))
+        system_skills = {normalize(s) for s in str(row1['Hasil Ekstraksi Sistem']).strip().split('\n')}
+        annotator1_skills = {normalize(s) for s in str(row1['Hasil Anotasi Pakar']).strip().split('\n')}
+        annotator2_skills = {normalize(s) for s in str(row2['Hasil Anotasi Pakar']).strip().split('\n')}
 
         for s in [system_skills, annotator1_skills, annotator2_skills]:
             s.discard('')
