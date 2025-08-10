@@ -1,8 +1,8 @@
 import pandas as pd
 import numpy as np
 
-gopal_excel_file = 'Anotasi Skill - Gopal.xlsx'
-rizfi_excel_file = 'Anotasi Skill - Rizfi.xlsx'
+gopal_excel_file = 'Anotasi Skill - Rizfi.xlsx'
+rizfi_excel_file = 'Anotasi Skill - Khansa.xlsx'
 
 gopal_job_posting_df = pd.read_excel(gopal_excel_file, sheet_name='Job Posting')
 rizfi_job_posting_df = pd.read_excel(rizfi_excel_file, sheet_name='Job Posting')
@@ -77,14 +77,14 @@ def calculate_kappa_per_row(df1, df2, annot_col, id_col):
     return avg_kappa, kappa_details
 
 # avg_jp_skill, details_jp_skill = calculate_kappa_per_skill(gopal_job_posting_df, rizfi_job_posting_df, 'Hasil Anotasi Pakar')
-# print(f"\n>>> HASIL METODE PER-SKILL (Validasi Skema Anotasi) <<<")
+# print(f"\HASIL METODE PER-SKILL (Validasi Skema Anotasi)")
 # print(f"Rata-rata Kappa: {avg_jp_skill:.4f}")
 # print("--- Rincian Kappa per Skill ---")
 # for skill, score in details_jp_skill:
 #     print(f"Kappa = {score:.4f} | Skill: {skill}")
 
 avg_jp_row, details_jp_row = calculate_kappa_per_row(gopal_job_posting_df, rizfi_job_posting_df, 'Hasil Anotasi Pakar', 'Nama Pekerjaan')
-print(f"\n\n>>> HASIL KAPPA PER-BARIS (JOB POSTING) <<<")
+print(f"\n\nHASIL KAPPA PER-BARIS (JOB POSTING)")
 print(f"Rata-rata Kappa: {avg_jp_row:.4f}")
 print("--- Rincian Kappa per Baris ---")
 for job, score in details_jp_row:
@@ -93,14 +93,14 @@ for job, score in details_jp_row:
 print("\n\n")
 
 # avg_sfia_skill, details_sfia_skill = calculate_kappa_per_skill(gopal_sfia_df, rizfi_sfia_df, 'Hasil Anotasi Pakar')
-# print(f"\n>>> HASIL METODE PER-SKILL (Validasi Skema Anotasi) <<<")
+# print(f"\nHASIL METODE PER-SKILL (Validasi Skema Anotasi)")
 # print(f"Rata-rata Kappa: {avg_sfia_skill:.4f}")
 # print("--- Rincian Kappa per Skill ---")
 # for skill, score in details_sfia_skill:
 #     print(f"Kappa = {score:.4f} | Skill: {skill}")
 
 avg_sfia_row, details_sfia_row = calculate_kappa_per_row(gopal_sfia_df, rizfi_sfia_df, 'Hasil Anotasi Pakar', 'Skill - Level')
-print(f"\n\n>>> HASIL KAPPA PER-BARIS (SFIA) <<<")
+print(f"\n\nHASIL KAPPA PER-BARIS (SFIA)")
 print(f"Rata-rata Kappa: {avg_sfia_row:.4f}")
 print("--- Rincian Kappa per Baris ---")
 for skill_level, score in details_sfia_row:
