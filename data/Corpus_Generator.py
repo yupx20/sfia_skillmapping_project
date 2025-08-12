@@ -4,7 +4,6 @@ from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 import nltk
 
-# Pastikan data NLTK sudah diunduh
 try:
     stopwords.words('english')
 except LookupError:
@@ -14,16 +13,14 @@ try:
 except LookupError:
     nltk.download('punkt')
 
-# --- INPUT DIUBAH ---
-# Muat dataset dari satu file Excel dengan sheet yang berbeda
-file_input_excel = 'Anotasi Skill - Gopal.xlsx'
+file_input_excel = 'Anotasi Skill - Khansa.xlsx'
 job_posting_df = pd.read_excel(file_input_excel, sheet_name='Job Posting')
 sfia_df = pd.read_excel(file_input_excel, sheet_name='SFIA')
 
 stop_words = set(stopwords.words('english'))
 
 def preprocess_text(text):
-    # Pastikan input adalah string untuk menghindari error pada data kosong (NaN)
+    
     if not isinstance(text, str):
         return ''
     # Ubah teks menjadi huruf kecil
@@ -38,19 +35,15 @@ def preprocess_text(text):
     tokens = [word for word in tokens if word not in stop_words]
     return ' '.join(tokens)
 
-# Proses dataframe 'Job Posting'
 job_posting_df['Korpus'] = job_posting_df['Deskripsi Pekerjaan'].apply(preprocess_text)
 print("Job Posting with Korpus:")
 print(job_posting_df[['Deskripsi Pekerjaan', 'Korpus']].head())
 
-# Proses dataframe 'SFIA'
 sfia_df['Korpus'] = sfia_df['Deskripsi Level'].apply(preprocess_text)
 print("\nSFIA with Korpus:")
 print(sfia_df[['Deskripsi Level', 'Korpus']].head())
 
-# --- OUTPUT DIUBAH ---
-# Simpan dataframe yang sudah diproses ke satu file Excel dengan sheet yang berbeda
-file_output_excel = 'Output_Proses_Gopal.xlsx'
+file_output_excel = file_input_excel
 with pd.ExcelWriter(file_output_excel) as writer:
     job_posting_df.to_excel(writer, sheet_name='Job Posting', index=False)
     sfia_df.to_excel(writer, sheet_name='SFIA', index=False)
