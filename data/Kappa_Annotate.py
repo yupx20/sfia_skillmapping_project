@@ -1,74 +1,114 @@
 import pandas as pd
 import numpy as np
 
-gopal_excel_file = 'Anotasi Skill - Gopal.xlsx'
-rizfi_excel_file = 'Anotasi Skill - Rizfi.xlsx'
-
-gopal_job_posting_df = pd.read_excel(gopal_excel_file, sheet_name='Job Posting')
-rizfi_job_posting_df = pd.read_excel(rizfi_excel_file, sheet_name='Job Posting')
-
-gopal_sfia_df = pd.read_excel(gopal_excel_file, sheet_name='SFIA')
-rizfi_sfia_df = pd.read_excel(rizfi_excel_file, sheet_name='SFIA')
-
 def normalize(skill):
+
     return skill.strip().lower().replace('-', ' ').replace('_', ' ').replace('  ', ' ')
 
-def manual_cohen_kappa(rater1, rater2):
-    a = np.sum((rater1 == 1) & (rater2 == 1))
-    b = np.sum((rater1 == 1) & (rater2 == 0))
-    c = np.sum((rater1 == 0) & (rater2 == 1))
-    d = np.sum((rater1 == 0) & (rater2 == 0))
+def manual_cohen_kappa(rater1_vector, rater2_vector):
+
+    # n_items = a + b + c + d
+    n_items = len(rater1_vector)
+    if n_items == 0:
+        return 1.0
+
+    agreements = sum(1 for i in range(n_items) if rater1_vector[i] == rater2_vector[i])
+    po = agreements / n_items
+
+    rater1_yes = sum(rater1_vector) / n_items
+    rater1_no = 1 - rater1_yes
     
-    total = a + b + c + d
-    if total == 0: return 1.0
+    rater2_yes = sum(rater2_vector) / n_items
+    rater2_no = 1 - rater2_yes
     
-    po = (a + d) / total
-    p_rater1_yes = (a + b) / total
-    p_rater2_yes = (a + c) / total
-    p_rater1_no = (c + d) / total
-    p_rater2_no = (b + d) / total
-    pe = (p_rater1_yes * p_rater2_yes) + (p_rater1_no * p_rater2_no)
+    chance_yes = rater1_yes * rater2_yes
+    chance_no = rater1_no * rater2_no
     
-    if pe == 1.0: return 1.0 if po == 1.0 else 0.0
+    pe = chance_yes + chance_no
+    
+    if pe == 1.0:
+        return 1.0 if po == 1.0 else 0.0
+
     kappa = (po - pe) / (1 - pe)
+    
     return kappa
 
-def calculate_kappa_per_row(df1, df2, annot_col, corpus_col, id_col):
+def calculate_and_print_kappa(file1, file2, sheet_name):
 
-    all_skills = set()
-    for skills_list in df1[corpus_col].astype(str).str.lower().str.split(): all_skills.update(s for s in skills_list if s)
-    for skills_list in df2[corpus_col].astype(str).str.lower().str.split(): all_skills.update(s for s in skills_list if s)
-    all_skills = sorted(list(all_skills))
+    print(f"--- Memproses Sheet: {sheet_name} ---")
+
+    if sheet_name == 'Job Posting':
+        id_column = 'Nama Pekerjaan'
+    elif sheet_name == 'SFIA':
+        id_column = 'Skill - Level'
+    else:
+        print(f"Nama sheet '{sheet_name}' tidak dikenali.")
+        return
+
+    try:
+        df1 = pd.read_excel(file1, sheet_name=sheet_name)
+        df2 = pd.read_excel(file2, sheet_name=sheet_name)
+    except Exception as e:
+        print(f"Gagal membaca sheet '{sheet_name}'. Pastikan nama sheet dan file sudah benar. Error: {e}")
+        return
+
+    on_column = 'Korpus'
+    annotation_column = 'Hasil Anotasi Pakar'
+    annotator1_name = file1.replace('Anotasi Skill - ', '').replace('.xlsx', '')
+    annotator2_name = file2.replace('Anotasi Skill - ', '').replace('.xlsx', '')
+
+    df1 = df1.rename(columns={annotation_column: f'{annotator1_name}_annotations'})
+    df2 = df2.rename(columns={annotation_column: f'{annotator2_name}_annotations'})
+
+    df1_subset = df1[[id_column, on_column, f'{annotator1_name}_annotations']].dropna(subset=[on_column])
+    df2_subset = df2[[on_column, f'{annotator2_name}_annotations']].dropna(subset=[on_column])
     
-    kappa_details = []
-    for index, row1 in df1.iterrows():
-        row2 = df2.loc[index]
-        skills1 = set(normalize(s) for s in str(row1[annot_col]).lower().strip().split('\n'))
-        skills2 = set(normalize(s) for s in str(row2[annot_col]).lower().strip().split('\n'))
+    merged_df = pd.merge(df1_subset, df2_subset, on=on_column)
+
+    results = []
+
+    def get_normalized_annotated_skills(annotation):
+        if pd.isna(annotation):
+            return set()
+        return {normalize(s) for s in str(annotation).split('\n')}
+
+    for index, row in merged_df.iterrows():
+        corpus_text = row[on_column]
         
-        vector1 = np.array([1 if skill in skills1 else 0 for skill in all_skills])
-        vector2 = np.array([1 if skill in skills2 else 0 for skill in all_skills])
+        # Korpus dari deskripsi per baris
+        items_to_rate = sorted(list(set(normalize(word) for word in str(corpus_text).split())))
         
-        score = manual_cohen_kappa(vector1, vector2)
-        row_id = row1[id_col]
-        kappa_details.append((row_id, score))
+        # Hasil anotasi per baris
+        anot1_skills = get_normalized_annotated_skills(row[f'{annotator1_name}_annotations'])
+        anot2_skills = get_normalized_annotated_skills(row[f'{annotator2_name}_annotations'])
 
-    avg_kappa = np.mean([score for _, score in kappa_details])
-    kappa_details.sort(key=lambda x: x[1], reverse=True)
-    return avg_kappa, kappa_details
+        anot1_vector = [1 if item in anot1_skills else 0 for item in items_to_rate]
+        anot2_vector = [1 if item in anot2_skills else 0 for item in items_to_rate]
+        
+        kappa = manual_cohen_kappa(anot1_vector, anot2_vector)
 
-avg_jp_row, details_jp_row = calculate_kappa_per_row(gopal_job_posting_df, rizfi_job_posting_df, 'Hasil Anotasi Pakar', 'Korpus', 'Nama Pekerjaan')
-print(f"\n\nHASIL KAPPA PER-BARIS (JOB POSTING)")
-print(f"Rata-rata Kappa: {avg_jp_row:.4f}")
-print("--- Rincian Kappa per Baris ---")
-for job, score in details_jp_row:
-    print(f"Kappa = {score:.4f} | Nama Pekerjaan: {job}")
+        results.append({
+            id_column: row[id_column],
+            'kappa_score': kappa
+        })
 
-print("\n\n")
+    results_df = pd.DataFrame(results)
 
-avg_sfia_row, details_sfia_row = calculate_kappa_per_row(gopal_sfia_df, rizfi_sfia_df, 'Hasil Anotasi Pakar', 'Korpus', 'Skill - Level')
-print(f"\n\nHASIL KAPPA PER-BARIS (SFIA)")
-print(f"Rata-rata Kappa: {avg_sfia_row:.4f}")
-print("--- Rincian Kappa per Baris ---")
-for skill_level, score in details_sfia_row:
-    print(f"Kappa = {score:.4f} | Skill - Level: {skill_level}")
+    if results_df.empty:
+        print("Tidak ada data yang cocok untuk diproses.")
+        return
+        
+    avg_kappa = results_df['kappa_score'].mean()
+
+    print(f"\nNilai Rata-rata Kappa: {avg_kappa:.4f}\n")
+    print("Rincian Nilai Kappa per Baris (dengan normalisasi):")
+    print(results_df.to_string())
+    print("-" * 50 + "\n")
+
+
+file_anot1 = 'Anotasi Skill - Gopal.xlsx'
+file_anot2 = 'Anotasi Skill - Rizfi.xlsx'
+
+calculate_and_print_kappa(file_anot1, file_anot2, sheet_name='Job Posting')
+
+calculate_and_print_kappa(file_anot1, file_anot2, sheet_name='SFIA')
