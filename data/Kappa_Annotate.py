@@ -12,6 +12,7 @@ def manual_cohen_kappa(rater1_vector, rater2_vector):
     if n_items == 0:
         return 1.0
 
+    # agreements = a + d
     agreements = sum(1 for i in range(n_items) if rater1_vector[i] == rater2_vector[i])
     po = agreements / n_items
 
@@ -54,8 +55,8 @@ def calculate_and_print_kappa(file1, file2, sheet_name):
 
     on_column = 'Korpus'
     annotation_column = 'Hasil Anotasi Pakar'
-    annotator1_name = file1.replace('Anotasi Skill - ', '').replace('.xlsx', '')
-    annotator2_name = file2.replace('Anotasi Skill - ', '').replace('.xlsx', '')
+    annotator1_name = file1.replace('Anotasi Skill - ', '').replace('.xlsx', '').lower()
+    annotator2_name = file2.replace('Anotasi Skill - ', '').replace('.xlsx', '').lower()
 
     df1 = df1.rename(columns={annotation_column: f'{annotator1_name}_annotations'})
     df2 = df2.rename(columns={annotation_column: f'{annotator2_name}_annotations'})
