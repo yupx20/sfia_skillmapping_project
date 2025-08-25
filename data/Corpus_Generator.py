@@ -4,16 +4,10 @@ from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 import nltk
 
-try:
-    stopwords.words('english')
-except LookupError:
-    nltk.download('stopwords')
-try:
-    word_tokenize('test')
-except LookupError:
-    nltk.download('punkt')
+nltk.download('stopwords')
+nltk.download('punkt')
 
-file_input_excel = 'Anotasi Skill - Khansa.xlsx'
+file_input_excel = 'Anotasi Skill - Gopal.xlsx'
 job_posting_df = pd.read_excel(file_input_excel, sheet_name='Job Posting')
 sfia_df = pd.read_excel(file_input_excel, sheet_name='SFIA')
 

@@ -1,41 +1,39 @@
 import pandas as pd
-import numpy as np
 
 def normalize(skill):
-
     return skill.strip().lower().replace('-', ' ').replace('_', ' ').replace('  ', ' ')
 
 def manual_cohen_kappa(rater1_vector, rater2_vector):
+    a, b, c, d = 0, 0, 0, 0
+    for i in range(len(rater1_vector)):
+        if rater1_vector[i] == 1 and rater2_vector[i] == 1:
+            a += 1
+        elif rater1_vector[i] == 1 and rater2_vector[i] == 0:
+            b += 1
+        elif rater1_vector[i] == 0 and rater2_vector[i] == 1:
+            c += 1
+        elif rater1_vector[i] == 0 and rater2_vector[i] == 0:
+            d += 1
 
-    # n_items = a + b + c + d
-    n_items = len(rater1_vector)
-    if n_items == 0:
-        return 1.0
+    total = a + b + c + d
+    if total == 0:
+        return {'a': 0, 'b': 0, 'c': 0, 'd': 0, 'Po': 1.0, 'Pe': 1.0, 'kappa': 1.0}
 
-    # agreements = a + d
-    agreements = sum(1 for i in range(n_items) if rater1_vector[i] == rater2_vector[i])
-    po = agreements / n_items
+    po = (a + d) / total
+    p_rater1_yes = (a + b) / total
+    p_rater2_yes = (a + c) / total
+    p_rater1_no = (c + d) / total
+    p_rater2_no = (b + d) / total
+    pe = (p_rater1_yes * p_rater2_yes) + (p_rater1_no * p_rater2_no)
 
-    rater1_yes = sum(rater1_vector) / n_items
-    rater1_no = 1 - rater1_yes
-    
-    rater2_yes = sum(rater2_vector) / n_items
-    rater2_no = 1 - rater2_yes
-    
-    chance_yes = rater1_yes * rater2_yes
-    chance_no = rater1_no * rater2_no
-    
-    pe = chance_yes + chance_no
-    
     if pe == 1.0:
-        return 1.0 if po == 1.0 else 0.0
-
-    kappa = (po - pe) / (1 - pe)
+        kappa = 1.0 if po == 1.0 else 0.0
+    else:
+        kappa = (po - pe) / (1 - pe)
     
-    return kappa
+    return {'a': a, 'b': b, 'c': c, 'd': d, 'Po': po, 'Pe': pe, 'kappa': kappa}
 
-def calculate_and_print_kappa(file1, file2, sheet_name):
-
+def calculate_and_save_kappa(file1, file2, sheet_name, writer):
     print(f"--- Memproses Sheet: {sheet_name} ---")
 
     if sheet_name == 'Job Posting':
@@ -71,45 +69,51 @@ def calculate_and_print_kappa(file1, file2, sheet_name):
     def get_normalized_annotated_skills(annotation):
         if pd.isna(annotation):
             return set()
-        return {normalize(s) for s in str(annotation).split('\n')}
+        return {normalize(s) for s in str(annotation).split('\n') if s.strip()}
 
-    for index, row in merged_df.iterrows():
-        corpus_text = row[on_column]
-        
-        # Korpus dari deskripsi per baris
-        items_to_rate = sorted(list(set(normalize(word) for word in str(corpus_text).split())))
-        
-        # Hasil anotasi per baris
+    for _, row in merged_df.iterrows():
+        corpus_terms = set(normalize(word) for word in str(row[on_column]).split() if word.strip())
         anot1_skills = get_normalized_annotated_skills(row[f'{annotator1_name}_annotations'])
         anot2_skills = get_normalized_annotated_skills(row[f'{annotator2_name}_annotations'])
+    
+        items_to_rate = sorted(list(corpus_terms.union(anot1_skills).union(anot2_skills)))
 
         anot1_vector = [1 if item in anot1_skills else 0 for item in items_to_rate]
         anot2_vector = [1 if item in anot2_skills else 0 for item in items_to_rate]
         
-        kappa = manual_cohen_kappa(anot1_vector, anot2_vector)
+        kappa_components = manual_cohen_kappa(anot1_vector, anot2_vector)
 
-        results.append({
-            id_column: row[id_column],
-            'kappa_score': kappa
-        })
+        result_row = {id_column: row[id_column]}
+        result_row.update(kappa_components)
+        results.append(result_row)
 
     results_df = pd.DataFrame(results)
 
     if results_df.empty:
         print("Tidak ada data yang cocok untuk diproses.")
         return
+    
+    column_order = [id_column, 'a', 'b', 'c', 'd', 'Po', 'Pe', 'kappa']
+    results_df = results_df[column_order]
         
-    avg_kappa = results_df['kappa_score'].mean()
-
+    avg_kappa = results_df['kappa'].mean()
     print(f"\nNilai Rata-rata Kappa: {avg_kappa:.4f}\n")
-    print("Rincian Nilai Kappa per Baris (dengan normalisasi):")
     print(results_df.to_string())
-    print("-" * 50 + "\n")
+    print("-" * 80 + "\n")
 
+    # Simpan ke sheet sesuai nama
+    results_df.to_excel(writer, sheet_name=sheet_name, index=False)
 
-file_anot1 = 'Anotasi Skill - Gopal.xlsx'
+# File input
+file_anot1 = 'Anotasi Skill - Khansa.xlsx'
 file_anot2 = 'Anotasi Skill - Rizfi.xlsx'
 
-calculate_and_print_kappa(file_anot1, file_anot2, sheet_name='Job Posting')
+anot1_name = file_anot1.replace('Anotasi Skill - ', '').replace('.xlsx', '').lower()
+anot2_name = file_anot2.replace('Anotasi Skill - ', '').replace('.xlsx', '').lower()
 
-calculate_and_print_kappa(file_anot1, file_anot2, sheet_name='SFIA')
+# Menulis ke satu file excel dengan dua sheet
+with pd.ExcelWriter(f'Kappa {anot1_name} x {anot2_name}.xlsx', engine='openpyxl') as writer:
+    calculate_and_save_kappa(file_anot1, file_anot2, sheet_name='Job Posting', writer=writer)
+    calculate_and_save_kappa(file_anot1, file_anot2, sheet_name='SFIA', writer=writer)
+
+print(f"Hasil seluruh sheet tersimpan di file: Kappa {anot1_name} x {anot2_name}.xlsx")

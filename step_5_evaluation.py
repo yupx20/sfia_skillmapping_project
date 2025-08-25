@@ -2,7 +2,7 @@ import pandas as pd
 import time
 import os
 
-# --- Ground Truth ---
+# Mengubah format data ground truth menjadi set yang berisi Skill - Level
 def create_ground_truth(gt_path: str, sheet_name: str) -> set:
     gt_df = pd.read_excel(gt_path, sheet_name=sheet_name)
     gt_df.columns = gt_df.columns.str.strip().str.replace('\n', '', regex=True)
@@ -17,7 +17,6 @@ def create_ground_truth(gt_path: str, sheet_name: str) -> set:
                 ground_truth_set.add(f"{skill_name} {level_number}")
     return ground_truth_set
 
-# --- Evaluasi satu model (mengembalikan dataframe) ---
 def evaluate_single_mapping(mapping_file: str, gt_set: set,
                             model_name: str, cluster_name: str, expanded: bool = False) -> pd.DataFrame:
     col_name = 'expanded_matched_skills' if expanded else 'matched_skills'

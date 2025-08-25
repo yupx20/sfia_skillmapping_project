@@ -12,17 +12,14 @@ def translate_text(text):
         return text
 
 def preprocess_jobs_and_sfia(job_file: str, sfia_file: str):
-    # Load cleaned job data
     jobs_df = pd.read_excel(job_file)
     sfia_df = transform_sfia_to_long_format(sfia_file)
 
-    # Translate & clean job descriptions
     print("Menerjemahkan dan membersihkan deskripsi lowongan...")
     jobs_df['job_description_cleaned'] = jobs_df['job_description'].apply(translate_text).apply(preprocess_text)
 
-    # Process SFIA
     print("Mengubah dan membersihkan deskripsi SFIA...")
-    sfia_df['Level_Description_cleaned'] = sfia_df['Level_Description'].apply(preprocess_text)
+    sfia_df['Level_Description_cleaned'] = sfia_df['Level_Description'].apply(preprocess_text) # Tidak perlu translate
 
     return jobs_df, sfia_df
 

@@ -28,12 +28,9 @@ def process_and_evaluate(df_annotator1, df_annotator2, sheet_name):
         row2 = df_annotator2.loc[index]
 
         # Ambil dan normalkan skill
-        system_skills = {normalize(s) for s in str(row1['Hasil Ekstraksi Sistem']).split('\n')}
-        annotator1_skills = {normalize(s) for s in str(row1['Hasil Anotasi Pakar']).split('\n')}
-        annotator2_skills = {normalize(s) for s in str(row2['Hasil Anotasi Pakar']).split('\n')}
-
-        for s in [system_skills, annotator1_skills, annotator2_skills]:
-            s.discard('')
+        system_skills = {normalize(s) for s in str(row1['Hasil Ekstraksi Sistem']).split('\n') if s.strip()}
+        annotator1_skills = {normalize(s) for s in str(row1['Hasil Anotasi Pakar']).split('\n') if s.strip()}
+        annotator2_skills = {normalize(s) for s in str(row2['Hasil Anotasi Pakar']).split('\n') if s.strip()}
 
         # Buat Ground Truth (Union)
         ground_truth = annotator1_skills.union(annotator2_skills)
@@ -53,7 +50,7 @@ def process_and_evaluate(df_annotator1, df_annotator2, sheet_name):
         # Simpan hasil kalkulasi
         result_dict = {
             id_col_name: identifier,
-            'Ground Truth': '\n'.join(sorted(list(ground_truth))),
+            'Ground Truth': ', '.join(sorted(list(ground_truth))),
             'TP': true_positives,
             'FP': false_positives,
             'FN': false_negatives,
@@ -70,7 +67,7 @@ def process_and_evaluate(df_annotator1, df_annotator2, sheet_name):
     # --- Tampilkan Hasil di Konsol ---
     print(f"--- Evaluasi untuk Sheet '{sheet_name}' ---")
     print("\nPerhitungan per Baris:")
-    print(results_df.to_string())
+    print(results_df)
 
     # Hitung dan tampilkan rata-rata
     avg_precision = results_df['Precision'].mean()

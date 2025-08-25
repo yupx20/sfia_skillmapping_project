@@ -3,12 +3,9 @@ import yake
 import re
 import nltk
 
-# Download stopwords jika belum ada
 nltk.download('stopwords')
-yake_extractor = yake.KeywordExtractor(lan="en", n=3, dedupLim=0.2, dedupFunc='seqm', features=None)
-
-# Inisialisasi RAKE
-rake_extractor = Rake()  # Secara default menggunakan stopwords NLTK bahasa Inggris
+yake_extractor = yake.KeywordExtractor(lan="en", n=3, dedupLim=0.2, dedupFunc='seqm', features=None) # dedupLim = 0.2 yang terbaik sejauh ini untuk ekstraksi penelitian ini.
+rake_extractor = Rake()
 
 def preprocess_for_jaccard(text):
     if not isinstance(text, str): return ""

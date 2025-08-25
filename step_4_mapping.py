@@ -143,7 +143,6 @@ def map_skills_cosine(jobs_df, sfia_df, job_col, sfia_col, cluster_name, model_n
     print(f"Hasil sebelum ekspansi : {len(unique_predicted)}, Setelah ekspansi : {len(expanded_set)}.\n")
 
 
-# --- MAIN ---
 if __name__ == '__main__':
     start_time = time.time()
     cluster_name = "IS" # Ganti CS atau IS
