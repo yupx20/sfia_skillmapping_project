@@ -1,10 +1,5 @@
 # SFIA Skill Mapping & Competency Intelligence
 
-[![Python 3.11](https://img.shields.io/badge/Python-3.11-blue.svg)](https://www.python.org/downloads/release/python-3110/)
-[![Framework](https://img.shields.io/badge/SFIA-Version%209-orange.svg)](https://sfia-online.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg)](app/Dockerfile)
-
 An end-to-end Natural Language Processing (NLP) framework and interactive web application for extracting IT technical skills from real-world job descriptions and automatically mapping them into the standardized **SFIA 9 (Skills Framework for the Information Age)** competency taxonomy across Levels 1 to 7.
 
 ---
@@ -353,4 +348,5 @@ The application includes an optimized Docker container that pre-downloads NLTK c
 
 * **Lead Researcher:** Rizal / yupx20
 * **Framework:** SFIA 9 by the [SFIA Foundation](https://sfia-online.org/)
+* **Python:** 3.11 (Flask)
 * **NLP Libraries:** spaCy, SkillNER, KeyBERT, HuggingFace Sentence-Transformers, NLTK, Scikit-learn
