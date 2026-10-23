@@ -1,0 +1,15 @@
+.git
+.gitignore
+__pycache__
+*/__pycache__
+*.pyc
+*.pyo
+*.pyd
+.env
+venv/
+env/
+scraping/chromedriver.exe
+scraping/cookies/
+output/*_Visual_Radar/
+output/*.png
+*.log
