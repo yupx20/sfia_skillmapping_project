@@ -155,7 +155,6 @@ To translate research into practice, the repository includes an interactive sing
 * **Direct Text Input & Sample Jobs:** Paste job descriptions manually or load pre-curated test roles (Senior Full Stack Engineer, Data Scientist, Lead Business Systems Analyst).
 * **Interactive Model Switcher:** Switch between the top-performing research models directly in the UI.
 * **Sensitivity Threshold Slider:** Dynamically adjust the cosine similarity threshold (0.05 to 0.50) to evaluate match strictness in real time.
-* **Cleaned SFIA Descriptions:** Automatically strips OpenXML Excel artifacts (`_x000D_`) and presents formatted multi-paragraph competency statements.
 * **JSON Export:** Download structured mapping outputs including matched tokens, similarity scores, category allocations, and level hierarchies.
 
 ---
