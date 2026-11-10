@@ -1,5 +1,5 @@
 // ===================================================================
-// SFIA Skill Mapping - Interactive Single Page Application Logic
+// SFIA Skill Mapping - Minimalist Single Page Application Logic
 // ===================================================================
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -15,20 +15,56 @@ document.addEventListener('DOMContentLoaded', () => {
   const thresholdVal = document.getElementById('thresholdVal');
   const btnAnalyzeManual = document.getElementById('btnAnalyzeManual');
   const sampleJobsContainer = document.getElementById('sampleJobsContainer');
+  const modelSelect = document.getElementById('modelSelect');
   
   const alertBox = document.getElementById('alertBox');
   const alertText = document.getElementById('alertText');
   
   const loadingCard = document.getElementById('loadingCard');
   const loadingStatusText = document.getElementById('loadingStatusText');
-  const stepItems = document.querySelectorAll('.stepper-item');
+  const loadingPipelineText = document.getElementById('loadingPipelineText');
+  const stepperList = document.getElementById('stepperList');
   
   const resultsContainer = document.getElementById('resultsContainer');
   
-  // Charts instances
+  // Chart instances
   let radarChartInstance = null;
   let levelChartInstance = null;
   let currentAnalysisData = null;
+
+  // Pipeline Definitions Matching Backend Processes
+  const MODEL_CONFIGS = {
+    skillner_qe_tfidf: {
+      name: 'SkillNER + QE + TF-IDF',
+      subtitle: 'Pipeline: SkillNER, WordNet query expansion, and TF-IDF SFIA level mapping',
+      steps: [
+        { key: 'prep', label: 'Preprocessing', desc: 'Cleaning text and detecting language...' },
+        { key: 'skillner', label: 'SkillNER Extraction', desc: 'Extracting technical competencies from taxonomy...' },
+        { key: 'qe', label: 'Query Expansion', desc: 'Enriching technical terms via WordNet QE...' },
+        { key: 'mapping', label: 'TF-IDF & Level Expansion', desc: 'Computing cosine similarity and expanding SFIA levels...' }
+      ]
+    },
+    skillner_qe_keybert_tfidf: {
+      name: 'SkillNER + Cleaned QE + KeyBERT + TF-IDF',
+      subtitle: 'Pipeline: SkillNER, WordNet QE, KeyBERT MMR keyphrase ranking, and TF-IDF mapping',
+      steps: [
+        { key: 'prep', label: 'Preprocessing', desc: 'Cleaning text and detecting language...' },
+        { key: 'skillner', label: 'SkillNER Extraction', desc: 'Extracting technical competencies from taxonomy...' },
+        { key: 'qe', label: 'Query Expansion', desc: 'Enriching technical terms via WordNet QE...' },
+        { key: 'keybert', label: 'KeyBERT MMR Ranking', desc: 'Ranking and filtering keyphrases via KeyBERT (MMR)...' },
+        { key: 'mapping', label: 'TF-IDF & Level Expansion', desc: 'Computing cosine similarity and expanding SFIA levels...' }
+      ]
+    },
+    skillner_tfidf: {
+      name: 'SkillNER + TF-IDF',
+      subtitle: 'Pipeline: Exact SkillNER dictionary taxonomy matching and TF-IDF level mapping',
+      steps: [
+        { key: 'prep', label: 'Preprocessing', desc: 'Cleaning text and detecting language...' },
+        { key: 'skillner', label: 'SkillNER Exact Matching', desc: 'Extracting exact taxonomy entities (no expansion)...' },
+        { key: 'mapping', label: 'TF-IDF & Level Expansion', desc: 'Computing cosine similarity and expanding SFIA levels...' }
+      ]
+    }
+  };
 
   // Threshold Slider Listener
   if (thresholdInput && thresholdVal) {
@@ -50,7 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // 2. Fetch and render Sample Jobs
+  // 2. Fetch and Render Sample Jobs
   async function loadSampleJobs() {
     try {
       const res = await fetch('/api/sample-jobs');
@@ -59,15 +95,14 @@ document.addEventListener('DOMContentLoaded', () => {
         sampleJobsContainer.innerHTML = '';
         data.samples.forEach(sample => {
           const chip = document.createElement('button');
+          chip.type = 'button';
           chip.className = 'sample-chip';
           chip.textContent = sample.title;
           chip.addEventListener('click', () => {
-            // Switch to manual tab and prefill
             document.querySelector('[data-tab="tabManual"]').click();
             manualTitleInput.value = sample.title;
             manualDescInput.value = sample.description;
             clusterSelect.value = sample.cluster;
-            // Smooth scroll to analyze button
             manualDescInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
           });
           sampleJobsContainer.appendChild(chip);
@@ -79,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   loadSampleJobs();
 
-  // 3. Helper Alert functions
+  // 3. Alert Helpers
   function showAlert(message) {
     alertText.textContent = message;
     alertBox.style.display = 'flex';
@@ -90,47 +125,91 @@ document.addEventListener('DOMContentLoaded', () => {
     alertBox.style.display = 'none';
   }
 
-  // 4. Stepper Progress Visualizer
-  function resetStepper() {
-    stepItems.forEach(item => {
-      item.classList.remove('active', 'done');
+  // 4. Dynamic Stepper Builder
+  let activeStepElements = [];
+
+  function buildStepper(modelKey, isScraping) {
+    const config = MODEL_CONFIGS[modelKey] || MODEL_CONFIGS.skillner_qe_tfidf;
+    loadingPipelineText.textContent = config.subtitle;
+    
+    // Construct steps list for current context
+    const steps = [];
+    if (isScraping) {
+      steps.push({ key: 'scrape', label: 'URL Scraping', desc: 'Scraping job posting from source portal...' });
+    }
+    config.steps.forEach(s => steps.push(s));
+
+    stepperList.innerHTML = '';
+    activeStepElements = [];
+
+    steps.forEach((step, index) => {
+      const item = document.createElement('div');
+      item.className = 'stepper-item';
+      item.id = `dynStep-${index}`;
+
+      const indicator = document.createElement('div');
+      indicator.className = 'step-indicator';
+      indicator.textContent = (index + 1).toString();
+
+      const label = document.createElement('span');
+      label.textContent = step.label;
+
+      item.appendChild(indicator);
+      item.appendChild(label);
+      stepperList.appendChild(item);
+
+      activeStepElements.push({ element: item, data: step });
     });
+
+    return steps;
   }
 
-  function activateStep(index, statusText) {
-    if (loadingStatusText) loadingStatusText.textContent = statusText;
-    stepItems.forEach((item, i) => {
+  function activateStepIndex(index, customDesc) {
+    activeStepElements.forEach((s, i) => {
       if (i < index) {
-        item.classList.remove('active');
-        item.classList.add('done');
+        s.element.classList.remove('active');
+        s.element.classList.add('done');
       } else if (i === index) {
-        item.classList.add('active');
-        item.classList.remove('done');
+        s.element.classList.add('active');
+        s.element.classList.remove('done');
+        if (loadingStatusText) {
+          loadingStatusText.textContent = customDesc || s.data.desc;
+        }
       } else {
-        item.classList.remove('active', 'done');
+        s.element.classList.remove('active', 'done');
       }
     });
   }
 
-  const modelSelect = document.getElementById('modelSelect');
-  
-  // 5. Scrape from URL and automatically run Analysis
+  function completeAllSteps() {
+    activeStepElements.forEach(s => {
+      s.element.classList.remove('active');
+      s.element.classList.add('done');
+    });
+    if (loadingStatusText) {
+      loadingStatusText.textContent = 'Competency Mapping Complete';
+    }
+  }
+
+  // 5. Scrape from URL and Automatically Run Analysis
   btnScrape.addEventListener('click', async () => {
     const url = urlInput.value.trim();
     if (!url) {
-      showAlert('Please enter a valid job URL from LinkedIn or JobStreet.');
+      showAlert('Please enter a valid job posting URL from LinkedIn or JobStreet.');
       return;
     }
 
     hideAlert();
     resultsContainer.style.display = 'none';
     loadingCard.style.display = 'block';
-    resetStepper();
     loadingCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
+    const chosenModel = modelSelect ? modelSelect.value : 'skillner_qe_tfidf';
+    buildStepper(chosenModel, true);
+
     try {
-      activateStep(0, `Scraping job description from ${url.includes('linkedin') ? 'LinkedIn' : url.includes('jobstreet') ? 'JobStreet' : 'Job Portal'}...`);
-      
+      activateStepIndex(0, `Retrieving job details from ${url.includes('linkedin') ? 'LinkedIn' : url.includes('jobstreet') ? 'JobStreet' : 'Job Portal'}...`);
+
       const scrapeRes = await fetch('/api/scrape', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -141,18 +220,15 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!scrapeData.success) {
         loadingCard.style.display = 'none';
         showAlert(scrapeData.error || 'Failed to scrape job details.');
-        // Prefill manual tab as fallback
         document.querySelector('[data-tab="tabManual"]').click();
         return;
       }
 
-      // Prefill manual form behind the scenes
+      // Prefill manual form
       manualTitleInput.value = scrapeData.title || 'Scraped Job';
       manualDescInput.value = scrapeData.description || '';
 
-      const chosenModel = modelSelect ? modelSelect.value : 'skillner_qe_tfidf';
-
-      // Trigger analysis directly
+      // Proceed with model pipeline analysis
       await executeAnalysis({
         job_title: scrapeData.title,
         job_description: scrapeData.description,
@@ -160,7 +236,8 @@ document.addEventListener('DOMContentLoaded', () => {
         threshold: parseFloat(thresholdInput.value) || 0.20,
         model_type: chosenModel,
         company: scrapeData.company,
-        source: scrapeData.source
+        source: scrapeData.source,
+        stepOffset: 1 // Stepper already had scraping at step 0
       });
 
     } catch (err) {
@@ -185,8 +262,9 @@ document.addEventListener('DOMContentLoaded', () => {
     hideAlert();
     resultsContainer.style.display = 'none';
     loadingCard.style.display = 'block';
-    resetStepper();
     loadingCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    buildStepper(chosenModel, false);
 
     await executeAnalysis({
       job_title: title,
@@ -195,25 +273,37 @@ document.addEventListener('DOMContentLoaded', () => {
       threshold: threshold,
       model_type: chosenModel,
       company: 'Direct Input',
-      source: 'Manual'
+      source: 'Manual',
+      stepOffset: 0
     });
   });
 
-  // 7. Core Execution Function
+  // 7. Core Execution Function with Model-Specific Step Timing
   async function executeAnalysis(payload) {
+    const offset = payload.stepOffset || 0;
+    const mType = payload.model_type || 'skillner_qe_tfidf';
+
     try {
-      activateStep(1, 'Preprocessing & Translating text to English...');
-      await new Promise(r => setTimeout(r, 350));
+      // Step: Preprocessing
+      activateStepIndex(offset + 0, 'Normalizing text and translating language...');
+      await new Promise(r => setTimeout(r, 220));
 
-      activateStep(2, 'Extracting Skills with SkillNER & Cleaned WordNet QE...');
-      await new Promise(r => setTimeout(r, 400));
+      // Step: SkillNER Extraction
+      activateStepIndex(offset + 1, 'Extracting technical competencies using SkillNER taxonomy...');
+      await new Promise(r => setTimeout(r, 260));
 
-      if (payload.model_type && payload.model_type.includes('keybert')) {
-        activateStep(3, 'Filtering and Ranking keyphrases via KeyBERT (MMR)...');
-      } else {
-        activateStep(3, 'Preparing Technical Skill Vector Representations...');
+      if (mType === 'skillner_qe_keybert_tfidf') {
+        // Step: WordNet QE
+        activateStepIndex(offset + 2, 'Enriching technical synonyms and acronyms via WordNet QE...');
+        await new Promise(r => setTimeout(r, 220));
+        // Step: KeyBERT MMR
+        activateStepIndex(offset + 3, 'Filtering and ranking keyphrases via KeyBERT (MMR)...');
+      } else if (mType === 'skillner_qe_tfidf') {
+        // Step: WordNet QE
+        activateStepIndex(offset + 2, 'Enriching technical synonyms and acronyms via WordNet QE...');
       }
 
+      // Execute actual backend request
       const response = await fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -227,13 +317,14 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      activateStep(4, 'Performing TF-IDF Cosine Similarity & SFIA Level Expansion...');
-      await new Promise(r => setTimeout(r, 350));
+      // Final step: TF-IDF & Level Expansion
+      const finalIndex = activeStepElements.length - 1;
+      activateStepIndex(finalIndex, 'Computing cosine similarity and expanding SFIA levels...');
+      await new Promise(r => setTimeout(r, 200));
 
-      // Done
-      stepItems.forEach(item => item.classList.add('done'));
-      loadingStatusText.textContent = 'Mapping Complete!';
-      await new Promise(r => setTimeout(r, 250));
+      // Complete
+      completeAllSteps();
+      await new Promise(r => setTimeout(r, 220));
 
       loadingCard.style.display = 'none';
       renderResults(data.result, payload);
@@ -259,6 +350,21 @@ document.addEventListener('DOMContentLoaded', () => {
       transIndicator.style.display = res.was_translated ? 'inline-block' : 'none';
     }
 
+    // Execution Timings Display
+    const timingsEl = document.getElementById('executionTimings');
+    if (timingsEl && res.timings) {
+      const t = res.timings;
+      const timingParts = [];
+      if (t.cleaning_translation) timingParts.push(`Preprocess: ${t.cleaning_translation}s`);
+      if (t.skillner) timingParts.push(`SkillNER: ${t.skillner}s`);
+      if (t.query_expansion) timingParts.push(`QE: ${t.query_expansion}s`);
+      if (t.keybert) timingParts.push(`KeyBERT: ${t.keybert}s`);
+      if (t.tfidf_cosine) timingParts.push(`TF-IDF: ${t.tfidf_cosine}s`);
+      if (t.level_expansion) timingParts.push(`Level Expansion: ${t.level_expansion}s`);
+      
+      timingsEl.textContent = `Execution Telemetry: Total ${res.total_execution_time || 0}s (${timingParts.join(' • ')})`;
+    }
+
     // Counters
     document.getElementById('statSkillsExtracted').textContent = res.counts.expanded_skills_count || res.counts.skillner_count;
     document.getElementById('statMappedCompetencies').textContent = res.counts.unique_skills_mapped;
@@ -266,12 +372,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Extracted Skills Pills
     const keybertPillsWrapper = document.getElementById('keybertPillsWrapper');
-    const keybertGroupTitle = document.querySelector('.pills-group-title');
+    const primaryPillsTitle = document.getElementById('primaryPillsTitle');
     keybertPillsWrapper.innerHTML = '';
     const keybertSkills = res.extracted_skills.keybert || [];
     
     if (keybertSkills.length > 0) {
-      if (keybertGroupTitle) keybertGroupTitle.textContent = 'KeyBERT Refined & Filtered Core Keyphrases:';
+      if (primaryPillsTitle) primaryPillsTitle.textContent = 'KeyBERT Refined Keyphrases (MMR Relevance):';
       keybertSkills.forEach(item => {
         const pill = document.createElement('span');
         pill.className = 'skill-pill keybert';
@@ -279,37 +385,34 @@ document.addEventListener('DOMContentLoaded', () => {
         keybertPillsWrapper.appendChild(pill);
       });
     } else {
-      if (keybertGroupTitle) keybertGroupTitle.textContent = 'Cleaned WordNet Expanded Skill Terms (No Slang):';
+      if (primaryPillsTitle) primaryPillsTitle.textContent = 'WordNet Expanded Technical Terms:';
       const qeSkills = (res.extracted_skills.wordnet_qe || []).filter(s => !res.extracted_skills.skillner.includes(s));
       if (qeSkills.length === 0) {
-        keybertPillsWrapper.innerHTML = '<span style="color: var(--text-dim); font-size: 0.9rem;">Clean dictionary exact entities used directly.</span>';
+        keybertPillsWrapper.innerHTML = '<span style="color: var(--text-dim); font-size: 0.85rem;">Clean exact taxonomy entities utilized directly.</span>';
       } else {
-        qeSkills.slice(0, 20).forEach(term => {
+        qeSkills.slice(0, 24).forEach(term => {
           const pill = document.createElement('span');
           pill.className = 'skill-pill keybert';
-          pill.style.background = 'rgba(79, 172, 254, 0.15)';
-          pill.style.borderColor = 'rgba(79, 172, 254, 0.35)';
-          pill.style.color = '#7dd3fc';
           pill.textContent = term;
           keybertPillsWrapper.appendChild(pill);
         });
       }
     }
 
-    // Raw SkillNER pills
+    // SkillNER direct taxonomy pills
     const rawPillsWrapper = document.getElementById('rawPillsWrapper');
     rawPillsWrapper.innerHTML = '';
     const rawSkills = res.extracted_skills.skillner || [];
-    rawSkills.slice(0, 20).forEach(skill => {
+    rawSkills.slice(0, 24).forEach(skill => {
       const pill = document.createElement('span');
       pill.className = 'skill-pill raw';
       pill.textContent = skill;
       rawPillsWrapper.appendChild(pill);
     });
-    if (rawSkills.length > 20) {
+    if (rawSkills.length > 24) {
       const morePill = document.createElement('span');
       morePill.className = 'skill-pill raw';
-      morePill.textContent = `+${rawSkills.length - 20} more`;
+      morePill.textContent = `+${rawSkills.length - 24} more`;
       rawPillsWrapper.appendChild(morePill);
     }
 
@@ -320,12 +423,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Render SFIA Competencies Cards
     renderSFIACompetencies(res.mapped_skills);
 
-    // Reveal results container with smooth animation
+    // Reveal results container
     resultsContainer.style.display = 'block';
     resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  // 9. Render SFIA Radar Chart (6 Categories)
+  // 9. Render SFIA Radar Chart (6 Categories) - Minimalist Gold Theme
   function renderRadarChart(radarData) {
     const ctx = document.getElementById('sfiaRadarChart').getContext('2d');
     if (radarChartInstance) {
@@ -335,18 +438,19 @@ document.addEventListener('DOMContentLoaded', () => {
     radarChartInstance = new Chart(ctx, {
       type: 'radar',
       data: {
-        labels: radarData.labels.map(l => l.length > 18 ? l.substring(0, 18) + '...' : l),
+        labels: radarData.labels.map(l => l.length > 20 ? l.substring(0, 20) + '...' : l),
         datasets: [{
           label: 'Competency Concentration',
           data: radarData.counts,
-          backgroundColor: 'rgba(0, 242, 254, 0.22)',
-          borderColor: '#00f2fe',
-          pointBackgroundColor: '#4facfe',
-          pointBorderColor: '#fff',
-          pointHoverBackgroundColor: '#fff',
-          pointHoverBorderColor: '#00f2fe',
+          backgroundColor: 'rgba(217, 119, 6, 0.16)',
+          borderColor: '#B48216',
+          pointBackgroundColor: '#B48216',
+          pointBorderColor: '#FFFFFF',
+          pointHoverBackgroundColor: '#FFFFFF',
+          pointHoverBorderColor: '#92400E',
           borderWidth: 2,
-          pointRadius: 4
+          pointRadius: 4,
+          pointBorderWidth: 1.5
         }]
       },
       options: {
@@ -354,17 +458,17 @@ document.addEventListener('DOMContentLoaded', () => {
         maintainAspectRatio: false,
         scales: {
           r: {
-            angleLines: { color: 'rgba(255, 255, 255, 0.08)' },
-            grid: { color: 'rgba(255, 255, 255, 0.08)' },
+            angleLines: { color: 'rgba(24, 24, 27, 0.08)' },
+            grid: { color: 'rgba(24, 24, 27, 0.08)' },
             pointLabels: {
-              color: '#94a3b8',
-              font: { family: 'Outfit', size: 11, weight: '600' }
+              color: '#3F3F46',
+              font: { family: "'Plus Jakarta Sans', sans-serif", size: 10.5, weight: '600' }
             },
             ticks: {
               backdropColor: 'transparent',
-              color: '#64748b',
+              color: '#71717A',
               stepSize: 1,
-              font: { family: 'JetBrains Mono', size: 9 }
+              font: { family: "'JetBrains Mono', monospace", size: 9 }
             }
           }
         },
@@ -375,7 +479,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 10. Render Level Distribution Bar Chart
+  // 10. Render Level Distribution Bar Chart - Minimalist Warm Progression
   function renderLevelDistributionChart(levelDist) {
     const ctx = document.getElementById('levelDistChart').getContext('2d');
     if (levelChartInstance) {
@@ -393,17 +497,17 @@ document.addEventListener('DOMContentLoaded', () => {
           label: 'Skill Proficiency Levels',
           data: dataVals,
           backgroundColor: [
-            'rgba(79, 172, 254, 0.4)',
-            'rgba(79, 172, 254, 0.5)',
-            'rgba(0, 242, 254, 0.6)',
-            'rgba(0, 242, 254, 0.75)',
-            'rgba(16, 185, 129, 0.7)',
-            'rgba(138, 43, 226, 0.7)',
-            'rgba(244, 63, 94, 0.7)'
+            'rgba(217, 119, 6, 0.25)',
+            'rgba(217, 119, 6, 0.38)',
+            'rgba(217, 119, 6, 0.50)',
+            'rgba(217, 119, 6, 0.65)',
+            'rgba(180, 130, 22, 0.80)',
+            'rgba(180, 83, 9, 0.88)',
+            'rgba(146, 64, 14, 0.95)'
           ],
-          borderColor: '#00f2fe',
+          borderColor: '#B48216',
           borderWidth: 1,
-          borderRadius: 6
+          borderRadius: 4
         }]
       },
       options: {
@@ -412,11 +516,11 @@ document.addEventListener('DOMContentLoaded', () => {
         scales: {
           x: {
             grid: { display: false },
-            ticks: { color: '#94a3b8', font: { family: 'JetBrains Mono', size: 10 } }
+            ticks: { color: '#52525B', font: { family: "'JetBrains Mono', monospace", size: 10 } }
           },
           y: {
-            grid: { color: 'rgba(255, 255, 255, 0.06)' },
-            ticks: { color: '#64748b', stepSize: 1, font: { family: 'JetBrains Mono', size: 10 } }
+            grid: { color: 'rgba(24, 24, 27, 0.05)' },
+            ticks: { color: '#71717A', stepSize: 1, font: { family: "'JetBrains Mono', monospace", size: 10 } }
           }
         },
         plugins: {
@@ -432,7 +536,7 @@ document.addEventListener('DOMContentLoaded', () => {
     container.innerHTML = '';
 
     if (!skills || skills.length === 0) {
-      container.innerHTML = '<div class="glass-card" style="text-align: center; color: var(--text-dim); padding: 2rem;">No SFIA competencies matched with the current threshold. Try lowering the similarity threshold.</div>';
+      container.innerHTML = '<div class="card" style="text-align: center; color: var(--text-muted); padding: 2rem;">No SFIA competencies matched with the current threshold. Consider lowering the similarity threshold.</div>';
       return;
     }
 
@@ -461,7 +565,7 @@ document.addEventListener('DOMContentLoaded', () => {
         tokensHtml = skillData.matched_tokens.map(t => `<span class="token-tag">${t}</span>`).join('');
       }
 
-      // Target level description (cleaned from Excel artifacts)
+      // Target level description (cleaned of Excel OpenXML artifacts)
       const rawDesc = skillData.descriptions[targetLvl] || 'Proficiency level description from SFIA 9.';
       const targetDesc = rawDesc
         .replace(/_x000D_[\n\r]*/g, '\n')
@@ -488,11 +592,11 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
 
         ${tokensHtml ? `
-        <div style="font-size: 0.78rem; color: var(--text-dim); margin-top: 0.6rem; font-weight: 600;">MATCHED SIGNALS:</div>
+        <div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 0.5rem; font-weight: 600; text-transform: uppercase;">Matched Signals:</div>
         <div class="tokens-row">${tokensHtml}</div>
         ` : ''}
 
-        <button class="desc-toggle-btn" data-target="desc-${idx}">
+        <button class="desc-toggle-btn" data-target="desc-${idx}" type="button">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
           SFIA Level ${targetLvl} Description
         </button>
@@ -506,7 +610,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Attach Accordion Toggle listeners
     document.querySelectorAll('.desc-toggle-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
+      btn.addEventListener('click', () => {
         const targetId = btn.getAttribute('data-target');
         const box = document.getElementById(targetId);
         if (box) {

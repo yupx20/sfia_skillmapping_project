@@ -3,37 +3,34 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SFIA 9 Skill Extraction & Semantic Competency Mapping</title>
-  <meta name="description" content="Extract skills from LinkedIn and JobStreet job descriptions and map them directly into SFIA 9 competency levels using SkillNER, WordNet QE, KeyBERT, and TF-IDF.">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+  <title>SFIA 9 Skill Extraction and Competency Mapping</title>
+  <meta name="description" content="Extract IT skills from job postings and map them directly into SFIA 9 competency levels using SkillNER, WordNet QE, KeyBERT, and TF-IDF.">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23D97706'/><path d='M9 10h14M9 16h10M9 22h14' stroke='%23FFFFFF' stroke-width='2.5' stroke-linecap='round'/></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/css/style.css">
-  <!-- Chart.js for Interactive Radar and Bar Visualizations -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <!-- Ambient Background Glows -->
-  <div class="bg-glow-1"></div>
-  <div class="bg-glow-2"></div>
-
   <div class="app-container">
-    <!-- Header / Hero Section -->
+    <!-- Header -->
     <header class="app-header">
       <div class="brand-badge">
-        <span class="pulse-dot"></span>
-        <span>SFIA 9 NLP Mapping Engine</span>
+        <span class="badge-dot"></span>
+        <span>SFIA Framework Version 9</span>
       </div>
       <h1 class="app-title">
-        Job Skill Extraction & <span class="gradient-text">SFIA Competency Mapping</span>
+        Job Skill Extraction and <span class="gold-text">SFIA Competency Mapping</span>
       </h1>
       <p class="app-subtitle">
-        Automatically parse job postings from LinkedIn or JobStreet, extract technical capabilities with
-        <span class="model-pill-highlight">SkillNER + QE + KeyBERT</span>, and align directly to SFIA Version 9 skill levels in one page.
+        Extract technical competencies from job postings and align them to standardized SFIA 9 responsibility levels using verified NLP pipelines and hierarchical level expansion.
       </p>
     </header>
 
-    <!-- Alert Box for Error Handling -->
-    <div id="alertBox" class="alert-box error">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <!-- Error Alert Box -->
+    <div id="alertBox" class="alert-box error" role="alert">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
         <circle cx="12" cy="12" r="10"></circle>
         <line x1="12" y1="8" x2="12" y2="12"></line>
         <line x1="12" y1="16" x2="12.01" y2="16"></line>
@@ -41,25 +38,25 @@
       <span id="alertText">An error occurred during processing.</span>
     </div>
 
-    <!-- Input Mode Tabs & Card -->
-    <section class="glass-card input-section">
+    <!-- Input Section -->
+    <section class="card input-section">
       <div class="nav-tabs">
-        <button class="tab-btn active" data-tab="tabUrl">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <button class="tab-btn active" data-tab="tabUrl" type="button">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
             <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
           </svg>
-          Scrape Job URL (LinkedIn / JobStreet)
+          Scrape Job URL
         </button>
-        <button class="tab-btn" data-tab="tabManual">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <button class="tab-btn" data-tab="tabManual" type="button">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
             <polyline points="14 2 14 8 20 8"></polyline>
             <line x1="16" y1="13" x2="8" y2="13"></line>
             <line x1="16" y1="17" x2="8" y2="17"></line>
             <polyline points="10 9 9 9 8 9"></polyline>
           </svg>
-          Direct Text Input & Parameters
+          Direct Text Input and Settings
         </button>
       </div>
 
@@ -67,7 +64,7 @@
       <div id="tabUrl" class="tab-content active">
         <div class="url-input-wrapper">
           <div class="url-icon">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="12" cy="12" r="10"></circle>
               <line x1="2" y1="12" x2="22" y2="12"></line>
               <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
@@ -77,13 +74,13 @@
             type="url"
             id="jobUrlInput"
             class="url-input"
-            placeholder="Paste LinkedIn or JobStreet Job Posting URL (e.g. https://www.linkedin.com/jobs/view/...)"
+            placeholder="Paste LinkedIn or JobStreet posting link (e.g., https://www.linkedin.com/jobs/view/...)"
           />
-          <button id="btnScrape" class="btn-primary">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <button id="btnScrape" class="btn-primary" type="button">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
               <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
             </svg>
-            Fetch & Map SFIA
+            Fetch and Map
           </button>
         </div>
       </div>
@@ -93,10 +90,10 @@
         <div class="form-grid-2">
           <div class="form-group">
             <label class="form-label" for="manualTitleInput">Job Title</label>
-            <input type="text" id="manualTitleInput" class="form-input" placeholder="e.g. Senior Software Engineer / Data Scientist">
+            <input type="text" id="manualTitleInput" class="form-input" placeholder="e.g., Senior Software Engineer, Data Scientist">
           </div>
           <div class="form-group">
-            <label class="form-label" for="clusterSelect">Target Role Cluster</label>
+            <label class="form-label" for="clusterSelect">Role Cluster</label>
             <select id="clusterSelect" class="form-select">
               <option value="auto">Auto-Detect Cluster (CS or IS)</option>
               <option value="CS">Computer Science (CS)</option>
@@ -106,11 +103,11 @@
         </div>
 
         <div class="form-group">
-          <label class="form-label" for="manualDescInput">Job Description Content</label>
+          <label class="form-label" for="manualDescInput">Job Description</label>
           <textarea
             id="manualDescInput"
             class="form-textarea"
-            placeholder="Paste the raw or translated job description requirements, responsibilities, and qualifications..."
+            placeholder="Paste the job description text including qualifications, responsibilities, and requirements..."
           ></textarea>
         </div>
 
@@ -118,22 +115,22 @@
           <div class="form-group">
             <label class="form-label" for="modelSelect">NLP Model Pipeline</label>
             <select id="modelSelect" class="form-select">
-              <option value="skillner_qe_tfidf" selected>SkillNER + QE + TF-IDF (Recommended - Clean & High Recall)</option>
+              <option value="skillner_qe_tfidf" selected>SkillNER + QE + TF-IDF (Recommended)</option>
               <option value="skillner_qe_keybert_tfidf">SkillNER + Cleaned QE + KeyBERT + TF-IDF</option>
               <option value="skillner_tfidf">SkillNER + TF-IDF (Exact Dictionary Matching Only)</option>
             </select>
           </div>
           <div class="form-group">
-            <label class="form-label">
-              Cosine Similarity Threshold: <strong id="thresholdVal" style="color: var(--accent-cyan);">0.20</strong>
+            <label class="form-label" for="thresholdInput">
+              Cosine Similarity Threshold: <strong id="thresholdVal" class="threshold-badge">0.20</strong>
             </label>
-            <input type="range" id="thresholdInput" min="0.05" max="0.45" step="0.05" value="0.20" style="width: 100%; accent-color: var(--accent-cyan); margin-top: 0.5rem;">
+            <input type="range" id="thresholdInput" min="0.05" max="0.45" step="0.05" value="0.20" class="form-range">
           </div>
         </div>
 
-        <div style="text-align: right; margin-top: 1rem;">
-          <button id="btnAnalyzeManual" class="btn-primary">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <div class="form-actions">
+          <button id="btnAnalyzeManual" class="btn-primary" type="button">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
               <circle cx="11" cy="11" r="8"></circle>
               <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
@@ -142,61 +139,41 @@
         </div>
       </div>
 
-      <!-- Quick Test Samples -->
+      <!-- Quick Test Presets -->
       <div class="sample-jobs-bar">
-        <span class="sample-jobs-label">Quick Test Presets:</span>
-        <div id="sampleJobsContainer" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
+        <span class="sample-jobs-label">Presets:</span>
+        <div id="sampleJobsContainer" class="sample-jobs-container"></div>
       </div>
     </section>
 
-    <!-- Animated Pipeline Loading Stepper -->
-    <div id="loadingCard" class="glass-card loading-card">
+    <!-- Pipeline Loading Stepper (Dynamically Configured per Model) -->
+    <div id="loadingCard" class="card loading-card">
       <div class="loading-spinner"></div>
-      <h3 id="loadingStatusText" style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">
-        Initializing NLP Pipeline...
-      </h3>
-      <p style="color: var(--text-dim); font-size: 0.9rem;">
-        Running the best performing model (SkillNER + QE + KeyBERT + TF-IDF with SFIA Skill Level Expansion)
+      <h3 id="loadingStatusText" class="loading-title">Initializing NLP Pipeline</h3>
+      <p id="loadingPipelineText" class="loading-subtitle">
+        Running SkillNER + QE + TF-IDF with SFIA Level Expansion
       </p>
 
-      <div class="stepper-list">
-        <div class="stepper-item" id="step0">
-          <div class="step-indicator">1</div>
-          <span>Scraping / Input</span>
-        </div>
-        <div class="stepper-item" id="step1">
-          <div class="step-indicator">2</div>
-          <span>Preprocessing</span>
-        </div>
-        <div class="stepper-item" id="step2">
-          <div class="step-indicator">3</div>
-          <span>SkillNER + QE</span>
-        </div>
-        <div class="stepper-item" id="step3">
-          <div class="step-indicator">4</div>
-          <span>KeyBERT (MMR)</span>
-        </div>
-        <div class="stepper-item" id="step4">
-          <div class="step-indicator">5</div>
-          <span>TF-IDF & Level Expansion</span>
-        </div>
+      <div id="stepperList" class="stepper-list">
+        <!-- Dynamically rendered according to model pipeline -->
       </div>
     </div>
 
-    <!-- Single-Page Results Container -->
+    <!-- Results Container -->
     <main id="resultsContainer" class="results-container">
       <!-- 1. Overview Banner -->
-      <section class="glass-card overview-banner">
+      <section class="card overview-banner">
         <div>
           <h2 id="metaJobTitle" class="job-meta-title">Software Engineer</h2>
           <div class="job-meta-company">
             <span id="metaCompany">Acme Inc.</span>
-            <span>&bull;</span>
+            <span class="meta-separator">&bull;</span>
             <span id="metaCluster" class="cluster-tag">Cluster: CS</span>
-            <span id="translationBadge" class="cluster-tag" style="background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.3); color: var(--accent-emerald); display: none;">
+            <span id="translationBadge" class="cluster-tag translation-tag">
               Translated from ID
             </span>
           </div>
+          <div id="executionTimings" class="execution-timings"></div>
         </div>
 
         <div class="meta-stats-grid">
@@ -215,19 +192,19 @@
         </div>
       </section>
 
-      <!-- 2. Analytics & Visualizations Grid -->
+      <!-- 2. Visualizations Grid -->
       <section class="analytics-grid">
         <!-- SFIA Radar Chart -->
-        <div class="glass-card">
+        <div class="card">
           <div class="chart-header">
             <h3 class="chart-title">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="12" cy="12" r="10"></circle>
                 <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
               </svg>
               SFIA Category Concentration
             </h3>
-            <span style="font-size: 0.78rem; color: var(--text-dim); font-family: var(--font-code);">6 Standard Axes</span>
+            <span class="chart-badge">6 Categories</span>
           </div>
           <div class="chart-canvas-wrapper">
             <canvas id="sfiaRadarChart"></canvas>
@@ -235,17 +212,17 @@
         </div>
 
         <!-- Proficiency Level Distribution -->
-        <div class="glass-card">
+        <div class="card">
           <div class="chart-header">
             <h3 class="chart-title">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <line x1="18" y1="20" x2="18" y2="10"></line>
                 <line x1="12" y1="20" x2="12" y2="4"></line>
                 <line x1="6" y1="20" x2="6" y2="14"></line>
               </svg>
-              SFIA Proficiency Level Distribution
+              Proficiency Level Distribution
             </h3>
-            <span style="font-size: 0.78rem; color: var(--text-dim); font-family: var(--font-code);">Levels 1 to 7</span>
+            <span class="chart-badge">Levels 1 to 7</span>
           </div>
           <div class="chart-canvas-wrapper">
             <canvas id="levelDistChart"></canvas>
@@ -253,29 +230,29 @@
         </div>
       </section>
 
-      <!-- 3. Extracted Skills Pills -->
-      <section class="glass-card skills-tags-card">
+      <!-- 3. Extracted Skills Section -->
+      <section class="card skills-tags-card">
         <h3 class="section-title">
-          <span>Extracted Technical Competencies & Keywords</span>
+          <span>Extracted Competencies and Terms</span>
         </h3>
         
         <div class="pills-group">
-          <div class="pills-group-title">KeyBERT Refined & Filtered Core Keyphrases (with MMR Relevance):</div>
+          <div id="primaryPillsTitle" class="pills-group-title">KeyBERT Refined Keyphrases:</div>
           <div id="keybertPillsWrapper" class="pills-wrapper"></div>
         </div>
 
         <div class="pills-group" style="margin-bottom: 0;">
-          <div class="pills-group-title">SkillNER Dictionary Entities & WordNet Synonyms:</div>
+          <div class="pills-group-title">SkillNER Extracted Entities:</div>
           <div id="rawPillsWrapper" class="pills-wrapper"></div>
         </div>
       </section>
 
-      <!-- 4. Top Matched SFIA Competencies List -->
-      <section class="glass-card">
+      <!-- 4. Mapped SFIA Competencies List -->
+      <section class="card">
         <div class="section-title">
-          <span>Mapped SFIA 9 Competencies & Level Hierarchies</span>
-          <button id="btnExportJson" class="btn-secondary" style="font-size: 0.82rem; padding: 0.45rem 0.9rem;">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <span>Mapped SFIA 9 Competencies and Hierarchies</span>
+          <button id="btnExportJson" class="btn-secondary" type="button">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
               <polyline points="7 10 12 15 17 10"></polyline>
               <line x1="12" y1="15" x2="12" y2="3"></line>
@@ -285,7 +262,7 @@
         </div>
 
         <div id="competenciesList" class="sfia-cards-list">
-          <!-- Dynamically populated competency cards -->
+          <!-- Dynamically populated -->
         </div>
       </section>
     </main>
